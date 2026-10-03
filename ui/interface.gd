@@ -10,6 +10,8 @@ var sim: CBSimulation
 var root: Control
 var body: VBoxContainer
 var inspector: PanelContainer
+var panel_scroll: ScrollContainer
+var panel_identity := ""
 var nav: VBoxContainer
 var metrics_bar: HBoxContainer
 var wellbeing_label: Label
@@ -90,6 +92,7 @@ func setup(model: CBSimulation) -> void:
 	inspector.add_theme_stylebox_override("panel", _box(PAPER, 16, 23))
 	root.add_child(inspector)
 	var scroll := ScrollContainer.new()
+	panel_scroll = scroll
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	inspector.add_child(scroll)
 	body = VBoxContainer.new()
@@ -155,6 +158,10 @@ func _responsive() -> void:
 		button.custom_minimum_size = Vector2(136 if compact else 164, 42)
 
 func show_panel(section: String) -> void:
+	var identity := section + ":" + (selected_resident if section == "Residents" else (selected_home if section == "Build" else ""))
+	if identity != panel_identity:
+		panel_scroll.set_deferred("scroll_vertical", 0)
+		panel_identity = identity
 	pane = section
 	for i in compact_navigation.item_count:
 		if compact_navigation.get_item_text(i) == section: compact_navigation.select(i)
