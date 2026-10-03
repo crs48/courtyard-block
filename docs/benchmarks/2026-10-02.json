@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-02",
+  "source_commit": "930e328",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "host": "Apple M1 Max, macOS 26.7",
+  "browser": "Chromium 154, headed, devicePixelRatio=1",
+  "notes": [
+    "Debug exports, 1440x900 viewport",
+    "120 warm-up frames then 3600 measured frames",
+    "Monotonic wall-clock frame intervals; active 20x simulation",
+    "Synthetic extra batched geometry; no arbitrary physics or custom assets",
+    "No physical mobile or thermal validation"
+  ],
+  "native": {
+    "catalogue": 10007,
+    "debug_build": true,
+    "frames": 3600,
+    "maximum_ms": 15.718,
+    "p95_ms": 13.409,
+    "p99_ms": 14.364,
+    "platform": "macOS",
+    "renderer": "gl_compatibility",
+    "residents": 150,
+    "simulation_step_p95_ms": 2.291,
+    "simulation_steps": 625,
+    "stress_objects": 5000,
+    "viewport": "(1440.0, 900.0)"
+  },
+  "browser_result": {
+    "catalogue": 10007,
+    "debug_build": true,
+    "frames": 3600,
+    "maximum_ms": 9.7,
+    "p95_ms": 9.2,
+    "p99_ms": 9.3,
+    "platform": "Web",
+    "renderer": "gl_compatibility",
+    "residents": 150,
+    "simulation_step_p95_ms": 3.6,
+    "simulation_steps": 625,
+    "stress_objects": 5000,
+    "viewport": "(1440.0, 900.0)"
+  }
+}

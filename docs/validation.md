@@ -5,7 +5,7 @@ Godot 4.7.2 standard (GDScript), using Compatibility/OpenGL/WebGL 2. Run from th
 ## Build
 
 ```sh
-mkdir -p exports/web exports/macos exports/android exports/ios
+mkdir -p exports/web exports/macos exports/android exports/ios exports/windows exports/linux
 python3 scripts/check.py
 godot --headless --path . --export-debug Web exports/web/index.html
 python3 scripts/serve.py
@@ -13,6 +13,8 @@ python3 scripts/serve.py
 
 godot --headless --path . --export-debug macOS exports/macos/CourtyardBlock.zip
 godot --headless --path . --export-debug Android exports/android/courtyard-block.apk
+godot --headless --path . --export-debug Windows exports/windows/CourtyardBlock.exe
+godot --headless --path . --export-debug Linux exports/linux/courtyard-block.x86_64
 ```
 
 Android requires a JDK, current Android SDK platform/build tools, Godot's Android SDK editor setting, and a debug keystore. This machine's old build-tools 27 signing utility failed on modern Java; installing build-tools 36.0.0 resolved signing. The APK is a development build. Use current platform-tools/ADB to install it; old ADB versions caused emulator connection failures.
@@ -42,7 +44,7 @@ The script uses a temporary project with a `SIMULATOR` placeholder solely to pas
 
 ## Verification record
 
-Tested on an Apple M1 Max Mac, October 2, 2026.
+Tested on an Apple M1 Max Mac running macOS 26.7, October 2, 2026. Browser: headed Chromium 154, device pixel ratio 1, 1440×900 canvas.
 
 | Check | Result |
 | --- | --- |
@@ -55,6 +57,7 @@ Tested on an Apple M1 Max Mac, October 2, 2026.
 | Chromium WebGL 2 game | Loaded with no console errors; resident inspection, furnishing, fork/switch/week comparison and JSON export exercised |
 | Landscape mobile layout | 844×390 browser/native layout inspected; Android menu and touch exercised |
 | Android development APK | Exported, signed, verified, installed and rendered on an ARM64 API 35 emulator |
+| Windows/Linux x86_64 | Exported successfully; execution not tested on this Mac |
 | iOS project/simulator build | Export and x86_64 build passed; runtime graphics blocked |
 | Physical phones, thermal soak, Safari and low-end PCs | Not tested |
 
@@ -67,9 +70,9 @@ godot --path . -- --smoke --benchmark
 # Browser: http://localhost:8060/?benchmark
 ```
 
-Reference load: 150 residents, seven storeys, 5,000 extra primitive objects and 10,000 extra catalogue definitions (10,007 total). All floors are visible; simulation runs at 20×. Static geometry is instanced; these objects are not 5,000 independent physics bodies. The benchmark records monotonic wall-clock intervals between frames after 120 warm-up frames, then samples 3,600 frames. It reports p95, p99, maximum and simulation-step p95. Browser results appear in `window.courtyardBenchmark` and the console; native results are written to `artifacts/native-benchmark.json` when running from the project.
+Reference load: 150 residents, seven storeys, 5,000 extra primitive objects and 10,000 extra catalogue definitions (10,007 total). All floors are visible; simulation runs at 20×. Static geometry is instanced; these objects are not 5,000 independent physics bodies. The stress objects are synthetic geometry, not 5,000 persisted furnishing slots. This measures steady-state overview rendering and active simulation, not construction spikes, arbitrary custom meshes or catalogue-search latency. The benchmark records monotonic wall-clock intervals between frames after 120 warm-up frames, then samples 3,600 frames. It reports p95, p99, maximum and simulation-step p95. Browser results appear in `window.courtyardBenchmark` and the console; native results are written to `artifacts/native-benchmark.json` when running from the project, or `user://benchmarks/native-benchmark.json` from an exported app.
 
-Target: p95 ≤16.7 ms. Local results are recorded below after the final benchmark. A 30–60 second desktop run is not a sustained mobile thermal test. Mod behavior, mesh/material diversity, layout complexity, drivers and browser scheduling can change performance substantially.
+Target: p95 ≤16.7 ms. Final exported macOS debug build (1440×900, M1 Max): **13.409 ms p95**, **14.364 ms p99**, **15.718 ms maximum** over 3,600 measured frames. Simulation p95 was **2.291 ms** across 625 ticks. This meets the local 60 fps frame-time target. Browser debug build at the same load: **9.2 ms p95**, **9.3 ms p99**, **9.7 ms maximum**; simulation p95 **3.6 ms** across 625 ticks. Both local targets passed. These are wall-clock measurements; earlier `_process(delta)` measurements were superseded because engine smoothing concealed some frame variation. A 30–60 second desktop run is not a sustained mobile thermal test. Mod behavior, mesh/material diversity, layout complexity, drivers and browser scheduling can change performance substantially.
 
 ## Remaining gates
 
