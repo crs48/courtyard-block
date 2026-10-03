@@ -1,0 +1,19 @@
+{
+  "id": "garden_village",
+  "name": "Garden village",
+  "version": "1.0.0",
+  "api_version": 1,
+  "dependencies": {
+    "base": "1.0.0"
+  },
+  "entry": "entry.gd",
+  "content": {
+    "templates": [
+      {
+        "id": "garden_village:cluster",
+        "name": "Garden village",
+        "description": "Small homes around a shared green. A different way to live."
+      }
+    ]
+  }
+}

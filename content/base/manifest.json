@@ -1,0 +1,147 @@
+{
+  "id": "base",
+  "name": "Courtyard essentials",
+  "version": "1.0.0",
+  "api_version": 1,
+  "dependencies": {},
+  "entry": "entry.gd",
+  "content": {
+    "furniture": [
+      {
+        "id": "base:bed",
+        "name": "A good night",
+        "cost": 24000,
+        "shape": "bed",
+        "need": "rest",
+        "benefit": 8,
+        "color": "#e8c492",
+        "description": "A quiet place to recharge."
+      },
+      {
+        "id": "base:sofa",
+        "name": "Sunday sofa",
+        "cost": 18000,
+        "shape": "sofa",
+        "need": "comfort",
+        "benefit": 7,
+        "color": "#db9b75",
+        "description": "Comfort for the slow hours."
+      },
+      {
+        "id": "base:table",
+        "name": "Gathering table",
+        "cost": 12000,
+        "shape": "table",
+        "need": "social",
+        "benefit": 5,
+        "color": "#b88456",
+        "description": "Make room for one more."
+      },
+      {
+        "id": "base:plant",
+        "name": "A little green",
+        "cost": 2500,
+        "shape": "plant",
+        "need": "comfort",
+        "benefit": 3,
+        "color": "#6f9163",
+        "description": "Bring the courtyard indoors."
+      },
+      {
+        "id": "base:bookshelf",
+        "name": "Open shelves",
+        "cost": 14000,
+        "shape": "shelf",
+        "need": "comfort",
+        "benefit": 5,
+        "color": "#bf986a",
+        "description": "Stories, tools, and treasures."
+      },
+      {
+        "id": "base:desk",
+        "name": "Window desk",
+        "cost": 16000,
+        "shape": "table",
+        "need": "comfort",
+        "benefit": 6,
+        "color": "#c9a577",
+        "description": "A place to make something."
+      }
+    ],
+    "materials": [
+      {
+        "id": "base:brick",
+        "name": "Warm brick",
+        "cost_multiplier": 1.0,
+        "comfort": 4,
+        "maintenance": 1.0,
+        "color": "#d3a082"
+      },
+      {
+        "id": "base:timber",
+        "name": "Mass timber",
+        "cost_multiplier": 1.15,
+        "comfort": 7,
+        "maintenance": 0.85,
+        "color": "#d5b78a"
+      },
+      {
+        "id": "base:concrete",
+        "name": "Mineral render",
+        "cost_multiplier": 0.9,
+        "comfort": 2,
+        "maintenance": 1.1,
+        "color": "#d9d4c7"
+      }
+    ],
+    "businesses": [
+      {
+        "id": "base:grocer",
+        "name": "Corner provisions",
+        "kind": "food",
+        "margin": 0.22,
+        "daily_revenue": 45000,
+        "daily_cost": 28000,
+        "jobs": 3,
+        "color": "#6e8567"
+      },
+      {
+        "id": "base:cafe",
+        "name": "The courtyard caf\u00e9",
+        "kind": "social",
+        "margin": 0.3,
+        "daily_revenue": 35000,
+        "daily_cost": 23000,
+        "jobs": 3,
+        "color": "#b77b5e"
+      },
+      {
+        "id": "base:workshop",
+        "name": "Repair & make",
+        "kind": "work",
+        "margin": 0.35,
+        "daily_revenue": 30000,
+        "daily_cost": 22000,
+        "jobs": 2,
+        "color": "#789396"
+      },
+      {
+        "id": "base:studio",
+        "name": "Neighbourhood studio",
+        "kind": "social",
+        "margin": 0.4,
+        "daily_revenue": 26000,
+        "daily_cost": 19000,
+        "jobs": 2,
+        "color": "#aa91a4"
+      }
+    ],
+    "templates": [
+      {
+        "id": "base:courtyard",
+        "name": "Courtyard block",
+        "description": "Homes above. Neighbours around. A garden within."
+      }
+    ]
+  }
+}

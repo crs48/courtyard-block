@@ -5,3 +5,5 @@ artifacts/
 .DS_Store
 *.tmp
 *.log
+output/
+.playwright-cli/

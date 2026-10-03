@@ -1,0 +1,24 @@
+{
+  "id": "soft_spaces",
+  "name": "Soft spaces",
+  "version": "1.0.0",
+  "api_version": 1,
+  "dependencies": {
+    "base": "1.0.0"
+  },
+  "entry": "",
+  "content": {
+    "furniture": [
+      {
+        "id": "soft_spaces:reading_chair",
+        "name": "Reading nook",
+        "description": "An armchair for a borrowed book and a quiet afternoon.",
+        "cost": 9500,
+        "shape": "sofa",
+        "need": "comfort",
+        "benefit": 8,
+        "color": "#b8a6c7"
+      }
+    ]
+  }
+}

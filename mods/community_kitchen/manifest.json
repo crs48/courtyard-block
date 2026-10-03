@@ -1,0 +1,11 @@
+{
+  "id": "community_kitchen",
+  "name": "Shared suppers",
+  "version": "1.0.0",
+  "api_version": 1,
+  "dependencies": {
+    "base": "1.0.0"
+  },
+  "entry": "entry.gd",
+  "content": {}
+}
