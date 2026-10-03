@@ -1,5 +1,28 @@
 # Builds and validation
 
+## Evening playable validation — October 2, 2026
+
+The default entry point now runs **An evening back**. The original sandbox and its measured rendering baseline remain available with `--foundation` (the existing `--smoke` / `--benchmark` flags still select that model).
+
+| Check | Result |
+| --- | --- |
+| Simulation/extension suite | 608 checks passed, including service alternatives, stock and money reconciliation, utility failures, worker tradeoffs, invalid definitions/reports and deterministic mid-service save continuation |
+| Actual scene/controller suite | 14 checks passed: scenario startup, service placement, incremental reference comparison, reset/notebook, custom recipe, portrait inspector/rotation and landscape control separation |
+| Native rendered scenario | 1440×900 desktop and 390×844 portrait smoke runs completed; final result and responsive layout inspected |
+| In-app browser | Initial load, route preview, six-hour trial, matched comparison, save reload, workshop JSON validation/placement and fresh-start backup flow exercised; no reported browser warnings/errors |
+| Web, macOS and Android | Updated debug exports completed without export/script errors |
+
+The browser mod-export action reported a ready download, but the automation download observer did not capture the archive. Archive delivery and mobile file pickers still need ordinary-browser/device testing. The new scene smoke runs are short functional checks, not a new performance benchmark or physical-phone measurement. Physical phones and the prior iOS runtime blocker remain outstanding.
+
+```sh
+python3 scripts/check.py
+godot --headless --path . --script tests/playable.gd -- --evening-smoke
+godot --path . -- --evening-smoke --screenshot=artifacts/evening-desktop.png
+godot --path . --resolution 390x844 -- --evening-smoke --screenshot=artifacts/evening-phone.png
+```
+
+See [the playable guide](evening.md) for implemented mechanics, synthetic balancing assumptions, data-mod boundaries and remaining work. AI creation currently uses exported prompts and validated pasted definitions; no model provider is integrated.
+
 Godot 4.7.2 standard (GDScript), using Compatibility/OpenGL/WebGL 2. Run from the repository root. Export templates must match the installed editor; the official 4.7.2 archive was checked against its published SHA-512 checksum.
 
 ## Build
@@ -42,7 +65,7 @@ xcodebuild -project exports/ios/CourtyardBlock.xcodeproj \
 
 The script uses a temporary project with a `SIMULATOR` placeholder solely to pass Godot's project-export validation. It does not sign or invent a development identity. The installed official template has an x86_64 simulator library; an arm64 simulator link failed with architecture errors. The x86_64 build succeeds and installs on an iOS 17.2 iPhone 15 Pro simulator, but execution stalled at OpenGL ES context initialization. A launch with the Mobile renderer also failed to produce a playable scene. **iOS runtime support is not yet validated.** Resolve the simulator/template graphics path and test a provisioned physical device before declaring iOS ready.
 
-## Verification record
+## Original foundation verification record
 
 Tested on an Apple M1 Max Mac running macOS 26.7, October 2, 2026. Browser: headed Chromium 154, device pixel ratio 1, 1440×900 canvas.
 

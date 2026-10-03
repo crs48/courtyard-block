@@ -1,6 +1,6 @@
 # 🧩 Courtyard Block: composable communities and playful experiments
 
-**Status:** Design exploration; proposed mechanics are not implemented or an approved implementation schedule.
+**Status:** Design exploration with a first playable slice implemented. See [the evening guide](../evening.md) for exact scope and remaining work; the broader design remains proposed.
 
 **Date:** October 2, 2026.
 
@@ -387,22 +387,22 @@ For this slice, basic sanitation can be a working facility plus a declared suppl
 
 The first impression should be a community responding to a good idea. The workshop and deep metrics follow after that experience. After playtesting, use the next scenario to teach noise/community tradeoffs, then sanitation/waste dependencies. Expand based on which decisions players find interesting.
 
-### Implementation checklist — proposed, not started
+### Implementation checklist — first-slice progress
 
 - [ ] Define versioned activity, service, stock, staff, connection and evidence contracts with units and explicit ownership.
 - [ ] Remove required `courtyard`/`city` identities from the new model; select capabilities and outside providers by declared roles.
-- [ ] Introduce minute-stamped events and deterministic reservation resolution for the first food-access scenario.
-- [ ] Replace automatic food recovery and synthetic local payroll with stock consumption and accounted service/work transactions for that scenario.
-- [ ] Provide minimal connected utility capacity, sanitation dependency, waste storage and collection behavior without a full engineering UI.
-- [ ] Build resident timelines and problem explanations from the same events that update state.
-- [ ] Add small prefab placement, schedule editing, preview and reversible design commands.
+- [x] Introduce minute-stamped events and deterministic reservation resolution for the first food-access scenario.
+- [x] Replace automatic food recovery and synthetic local payroll with stock consumption and accounted service/work transactions for that scenario.
+- [x] Provide minimal connected utility capacity, sanitation dependency, waste storage and collection behavior without a full engineering UI.
+- [x] Build resident timelines and problem explanations from the same events that update state.
+- [x] Add small prefab placement, schedule editing, preview and reversible design commands.
 - [ ] Turn manual forks into a convenient matched-period trial with original-cohort results and explicit model/version changes.
-- [ ] Add form-based remixing and an independent grocery pickup pack; expose missing capabilities clearly.
+- [x] Add form-based remixing and an independent grocery pickup pack; expose missing capabilities clearly.
 - [ ] Define isolated trial loading, full-pack fingerprints and a save/version transition before adding AI generation.
 - [ ] Add optional AI drafting against those schemas, validation reports and bounded test scenes.
 - [ ] Rework touch inspection/construction around the same commands, and playtest before broadening the systems.
 
-### Validation checklist — proposed, not yet performed
+### Validation checklist — progress and remaining checks
 
 **Enjoyment and understanding**
 
@@ -417,12 +417,12 @@ The first impression should be a community responding to a good idea. The worksh
 
 - [ ] Prove no double-booked staff or residents, duplicate resource consumption, negative reserved inventory, or unaccounted monetary transfers.
 - [ ] Check service closure, output blockage, inaccessible routes, unaffordable purchases and cancellation/release behavior.
-- [ ] Replay and save/load a trial deterministically, with bounded histories and stable external events.
+- [x] Replay and save/load a trial deterministically, with bounded histories and stable external events.
 - [ ] Test the same service pack in a courtyard, cul-de-sac and clustered village; verify topology changes access while a cosmetic reskin leaves modeled results unchanged.
-- [ ] Add a service through a separate pack without editing a host `match` statement; reject unsupported behavior rather than silently approximating it.
+- [x] Add a service through a separate pack without editing a host `match` statement; reject unsupported behavior rather than silently approximating it.
 - [ ] Distinguish design changes from changed model rules and keep the original resident cohort in comparison results.
 - [ ] Verify generated-pack validation rejects invalid references, unbounded work and unsupported operations; document the separate trusted-script path accurately.
-- [ ] Run `godot --headless --path . --script tests/run.gd` after implementation, plus focused tests for the new service and reservation invariants.
+- [x] Run `godot --headless --path . --script tests/run.gd` after implementation, plus focused tests for the new service and reservation invariants.
 
 **Interaction and performance**
 
@@ -436,4 +436,4 @@ The first impression should be a community responding to a good idea. The worksh
 
 Local evidence: [simulation](../../core/simulation.gd), [validation](../../core/validation.gd), [catalog](../../core/catalog.gd), [saves](../../core/saves.gd), [interface](../../ui/interface.gd), [model assumptions](../model.md), [mod API v1](../modding.md), [build/performance record](../validation.md), and [original foundation plan](../plans/godot-foundation/README.md). External primary sources are linked in the research table.
 
-The next implementation decision is whether to build the small food-access loop described above. Its acceptance criterion is experiential: **a player understands a person's problem, enjoys trying more than one solution, and can turn a new idea into a working, explainable piece.** Use that result to decide how much simulation detail to add next.
+The small food-access loop is now implemented in a bounded courtyard scenario; see [the playable guide](../evening.md). The next decision should follow external playtesting. Its acceptance criterion is experiential: **a player understands a person's problem, enjoys trying more than one solution, and can turn a new idea into a working, explainable piece.** Use that result to decide how much simulation detail to add next.

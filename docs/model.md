@@ -1,5 +1,7 @@
 # Simulation assumptions
 
+This page describes the original `--foundation` sandbox. The default playable evening has real stocked food services, minute-resolved activities, utility capacities and shift accounting; see its [separate model description](evening.md). The two modes use separate saves and do not silently convert one model into the other.
+
 The model supports repeatable gameplay experiments. It does not establish that a courtyard, any settlement form or any policy is objectively optimal. Compare individual residents and the least-happy 10% alongside the mean.
 
 ## Inputs and provenance
