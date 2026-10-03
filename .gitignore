@@ -1,0 +1,7 @@
+.godot/
+exports/*
+!exports/.gitkeep
+artifacts/
+.DS_Store
+*.tmp
+*.log
