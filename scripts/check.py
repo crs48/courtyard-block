@@ -16,3 +16,4 @@ def run(arguments, timeout=120):
 
 run(["--editor", "--import", "--quit"])
 run(["--script", "tests/run.gd"])
+run(["--script", "tests/playable.gd", "--", "--evening-smoke"])

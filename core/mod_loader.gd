@@ -6,8 +6,8 @@ const INSTALL_ROOT := "user://mods"
 const MAX_ARCHIVE_BYTES := 64 * 1024 * 1024
 const MAX_EXPANDED_BYTES := 128 * 1024 * 1024
 
-static func create_catalog(include_installed: bool = true) -> CBCatalog:
-	var roots: Array = BUNDLED.duplicate()
+static func create_catalog(include_installed: bool = true, include_evening: bool = true) -> CBCatalog:
+	var roots: Array = BUNDLED.duplicate() if include_evening else BUNDLED.slice(0, 4)
 	if include_installed and DirAccess.dir_exists_absolute(INSTALL_ROOT):
 		for directory in DirAccess.get_directories_at(INSTALL_ROOT):
 			if not directory.begins_with("."):

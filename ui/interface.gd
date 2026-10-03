@@ -37,15 +37,20 @@ var court_spin: SpinBox
 var material_option: OptionButton
 var template_option: OptionButton
 var proposed: Dictionary = {}
+var brand: VBoxContainer
+var collapse_button: Button
+var panel_collapsed := false
+var is_evening := false
 
 func setup(model: CBSimulation) -> void:
 	sim = model
+	is_evening = sim.state.has("evening")
 	root = Control.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.theme = _theme()
 	add_child(root)
-	var brand := VBoxContainer.new()
+	brand = VBoxContainer.new()
 	brand.position = Vector2(28, 24)
 	root.add_child(brand)
 	_label(brand, "COURTYARD\nBLOCK", 29, INK)
@@ -72,13 +77,17 @@ func setup(model: CBSimulation) -> void:
 	nav.position = Vector2(28, 178)
 	nav.add_theme_constant_override("separation", 9)
 	root.add_child(nav)
-	var names := ["Overview", "Residents", "Build", "Co-op", "Experiments", "Mods"]
+	var names := ["Inspect", "Build", "Try", "Workshop"] if is_evening else ["Overview", "Residents", "Build", "Co-op", "Experiments", "Mods"]
 	compact_navigation = OptionButton.new()
 	for section in names: compact_navigation.add_item(section)
 	compact_navigation.position = Vector2(250, 30)
 	compact_navigation.size = Vector2(170, 44)
 	compact_navigation.item_selected.connect(func(index: int) -> void: show_panel(names[index]))
 	root.add_child(compact_navigation)
+	collapse_button = _button(root, "Hide panel", func() -> void:
+		panel_collapsed = not panel_collapsed
+		_responsive())
+	collapse_button.visible = false
 	for i in names.size():
 		var section: String = names[i]
 		var button := _button(nav, "%02d   %s" % [i + 1, section], func() -> void: show_panel(section))
@@ -135,18 +144,20 @@ func setup(model: CBSimulation) -> void:
 	status_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	status_label.position = Vector2(30, -22)
 	root.resized.connect(_responsive)
-	show_panel("Overview")
+	show_panel("Inspect" if is_evening else "Overview")
 	_responsive()
 
 func _responsive() -> void:
 	var viewport_size := get_viewport().get_visible_rect().size
 	var compact := viewport_size.x < 1100
+	var portrait := viewport_size.x < 600 or (viewport_size.x < 1000 and viewport_size.y > viewport_size.x * 1.05)
 	metrics_bar.visible = not compact
 	nav.visible = not compact
 	compact_navigation.visible = compact
 	nav.position.y = 156 if compact else 178
-	inspector.position = Vector2(viewport_size.x - (334 if compact else 370), 88 if compact else 112)
-	inspector.size = Vector2(306 if compact else 342, maxf(120, viewport_size.y - (188 if compact else 218)))
+	var panel_width := (306 if compact else (410 if is_evening else 342))
+	inspector.position = Vector2(viewport_size.x - panel_width - 28, 88 if compact else 112)
+	inspector.size = Vector2(panel_width, maxf(120, viewport_size.y - (188 if compact else 218)))
 	save_button.position = Vector2(viewport_size.x - 184, 30)
 	bottom_bar.size.x = 460 if compact else 530
 	bottom_bar.position = Vector2(28, viewport_size.y - 92)
@@ -154,10 +165,48 @@ func _responsive() -> void:
 	status_label.position = Vector2(30, viewport_size.y - 22)
 	status_label.size.x = viewport_size.x - 60
 	status_label.clip_text = true
+	brand.visible = not compact
+	save_button.visible = not portrait
+	floor_bar.visible = true
+	collapse_button.visible = compact
+	inspector.visible = not (compact and panel_collapsed)
+	collapse_button.text = "Show panel" if panel_collapsed else "Hide panel"
+	if portrait:
+		floor_bar.position = Vector2(12, 68)
+		compact_navigation.position = Vector2(12, 12)
+		compact_navigation.size = Vector2(viewport_size.x - 140, 48)
+		collapse_button.position = Vector2(viewport_size.x - 120, 12)
+		collapse_button.size = Vector2(108, 48)
+		collapse_button.text = "Show panel" if panel_collapsed else "Hide panel"
+		inspector.position = Vector2(12, viewport_size.y * 0.37)
+		inspector.size = Vector2(viewport_size.x - 24, maxf(100, viewport_size.y * 0.63 - 98))
+		inspector.add_theme_stylebox_override("panel", _box(PAPER, 16, 16))
+		bottom_bar.position = Vector2(8, viewport_size.y - 78)
+		bottom_bar.size = Vector2(viewport_size.x - 16, 58)
+		var row: HBoxContainer = bottom_bar.get_child(0)
+		row.add_theme_constant_override("separation", 3)
+		for child in row.get_children():
+			if child is Button and child.text == "Rotate": child.visible = false
+		status_label.position = Vector2(12, viewport_size.y - 19)
+	else:
+		compact_navigation.position = Vector2(28, 30)
+		compact_navigation.size = Vector2(170, 44)
+		collapse_button.position = Vector2(210, 30)
+		collapse_button.size = Vector2(108, 44)
+		if compact:
+			floor_bar.position = Vector2(28, 88)
+			bottom_bar.size.x = viewport_size.x - 56
+		var row: HBoxContainer = bottom_bar.get_child(0)
+		row.add_theme_constant_override("separation", 10)
+		for child in row.get_children():
+			if child is Button and child.text == "Rotate": child.visible = true
 	for button in buttons.values():
 		button.custom_minimum_size = Vector2(136 if compact else 164, 42)
 
 func show_panel(section: String) -> void:
+	if is_evening:
+		if section in ["Residents", "Overview"]: section = "Inspect"
+		if not section in ["Inspect", "Build", "Try", "Workshop"]: section = "Try"
 	var identity := section + ":" + (selected_resident if section == "Residents" else (selected_home if section == "Build" else ""))
 	if identity != panel_identity:
 		panel_scroll.set_deferred("scroll_vertical", 0)
@@ -172,6 +221,10 @@ func show_panel(section: String) -> void:
 		child.queue_free()
 	for name_value in buttons:
 		buttons[name_value].modulate = Color.WHITE if name_value == section else Color(1, 1, 1, 0.65)
+	if is_evening:
+		CBEveningPanel.draw(self)
+		refresh()
+		return
 	match section:
 		"Overview": _overview()
 		"Residents": _residents()
@@ -391,6 +444,10 @@ func refresh() -> void:
 	funds_label.text = euros(int(sim.state.funds))
 	var minute := int(sim.state.minute)
 	date_label.text = "Day %s · %02d:%02d" % [minute / 1440 + 1, minute % 1440 / 60, minute % 60]
+	if is_evening:
+		date_label.text = CBEvening.clock(minute)
+		CBEveningPanel.refresh(self)
+		return
 	if is_instance_valid(curve):
 		curve.samples = sim.state.history
 		curve.queue_redraw()
@@ -419,7 +476,7 @@ func _number(caption: String, minimum: float, maximum: float, value: float, step
 	input.max_value = maximum
 	input.step = step
 	input.value = value
-	input.custom_minimum_size.y = 40
+	input.custom_minimum_size.y = 48
 	body.add_child(input)
 	return input
 
@@ -463,7 +520,7 @@ func _button(parent: Node, text: String, callback: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.clip_text = parent == body or (body != null and body.is_ancestor_of(parent))
-	button.custom_minimum_size.y = 40
+	button.custom_minimum_size.y = 48
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.pressed.connect(callback)
 	parent.add_child(button)

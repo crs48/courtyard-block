@@ -61,6 +61,7 @@ func rebuild(data: Dictionary, content: CBCatalog, stress_count: int = 0) -> voi
 		if space.kind == "home":
 			for furniture in space.furniture:
 				_furniture(space, furniture)
+	if state.has("evening"): _evening_services()
 	for i in stress_count:
 		var level := i % int(state.layout.floors)
 		var side := i % 4
@@ -72,6 +73,7 @@ func rebuild(data: Dictionary, content: CBCatalog, stress_count: int = 0) -> voi
 			p.z = -p.z
 		_box(p, Vector3(0.3, 0.7, 0.3), "#bca889", level)
 	_flush()
+	if state.has("evening"): _evening_labels()
 	_create_residents()
 	selection = MeshInstance3D.new()
 	var ring := TorusMesh.new()
@@ -84,6 +86,52 @@ func rebuild(data: Dictionary, content: CBCatalog, stress_count: int = 0) -> voi
 	selection.visible = false
 	add_child(selection)
 	set_floor(selected_floor)
+
+func _evening_services() -> void:
+	var design: Dictionary = state.evening.design
+	var definition: Dictionary = design.recipe if design.service == "workshop:prototype" else catalog.get_definition("evening_services", design.service)
+	if not definition.is_empty():
+		for space in state.layout.spaces:
+			if space.id != design.space: continue
+			var p := CBSpatial.vector(space.position)
+			_box(p + Vector3(0, 0.1, 0), Vector3(space.size[0] - 0.4, 0.2, space.size[1] - 0.4), str(definition.color), 0)
+			if definition.kind == "groceries":
+				for column in 4:
+					_box(p + Vector3((column - 1.5) * 0.9, 1, 0), Vector3(0.8, 1.9, 0.65), str(definition.color), 0)
+					_box(p + Vector3((column - 1.5) * 0.9 + 0.2, 1.2, 0.36), Vector3(0.07, 0.3, 0.08), "#efe6d0", 0)
+			else:
+				_box(p + Vector3(0, 0.9, 0), Vector3(3.6, 0.2, 1.3), "#d4b48a", 0)
+				for side in [-1, 1]:
+					for column in 3:
+						_box(p + Vector3((column - 1) * 1.3, 0.45, side * 1.3), Vector3(0.6, 0.7, 0.6), str(definition.color), 0)
+	var color_value := "#83a575" if design.shortcut else "#c6bda9"
+	for step in 9:
+		_box(Vector3(0, 0.08, 4 + step * 2), Vector3(1.1, 0.08, 1.1), color_value, -2)
+	for column in 3:
+		_box(Vector3(-4 + column, 0.55, 8), Vector3(0.7, 1.1, 0.7), "#6e7c68", 0)
+
+func _evening_labels() -> void:
+	var design: Dictionary = state.evening.design
+	var definition: Dictionary = design.recipe if design.service == "workshop:prototype" else catalog.get_definition("evening_services", design.service)
+	_label_3d("COURTYARD · 19:30–21:00", Vector3(0, 2, 0), Color("#426954"))
+	_label_3d("TO GROCER · %d MIN\nCloses %s" % [12 if design.shortcut else 28, "20:00" if design.late_hours else "18:30"], Vector3(0, 2, float(state.layout.width) / 2 + 7), Color("#426954"))
+	if not definition.is_empty():
+		for space in state.layout.spaces:
+			if space.id == design.space:
+				_label_3d(("PREVIEW · " if state.evening.phase == "design" else "") + str(definition.name).to_upper(), CBSpatial.vector(space.position) + Vector3(0, 5.5, 0), Color(definition.color))
+
+func _label_3d(text_value: String, location: Vector3, color_value: Color) -> void:
+	var label := Label3D.new()
+	label.text = text_value
+	label.position = location
+	label.font_size = 40
+	label.pixel_size = 0.035
+	label.modulate = color_value
+	label.outline_modulate = Color("#faf7ee")
+	label.outline_size = 10
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	add_child(label)
 
 func _custom_building() -> void:
 	var primitives: Variant = catalog.visuals[state.parameters.template].call(state.layout.duplicate(true), state.parameters.duplicate(true))
@@ -282,6 +330,8 @@ func update_people(delta: float) -> void:
 	for i in state.residents.size():
 		var person: Dictionary = state.residents[i]
 		var target := CBSpatial.vector(person.position)
+		if state.has("evening") and float(person.travel_remaining) <= 0:
+			target += Vector3((i % 3 - 1) * 0.6, 0, (i / 3 % 3 - 1) * 0.6)
 		if last_targets.get(person.id, -1) != int(person.target):
 			last_targets[person.id] = int(person.target)
 			resident_routes[person.id] = person.path.duplicate()
@@ -297,6 +347,14 @@ func update_people(delta: float) -> void:
 		var head_size := Vector3(0.42, 0.42, 0.42) if visible_person else Vector3.ZERO
 		residents_mesh.multimesh.set_instance_transform(i, Transform3D(Basis.from_scale(body_size), p + Vector3(0, 0.65, 0)))
 		resident_heads.multimesh.set_instance_transform(i, Transform3D(Basis.from_scale(head_size), p + Vector3(0, 1.2, 0)))
+
+func snap_people() -> void:
+	resident_routes.clear()
+	for i in state.residents.size():
+		var person: Dictionary = state.residents[i]
+		displayed_positions[i] = CBSpatial.vector(person.position) + Vector3((i % 3 - 1) * 0.6, 0, (i / 3 % 3 - 1) * 0.6)
+		last_targets[person.id] = int(person.target)
+	update_people(0)
 
 func set_floor(level: int) -> void:
 	selected_floor = level

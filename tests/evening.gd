@@ -72,6 +72,18 @@ func run(test: SceneTree, catalog: CBCatalog) -> void:
 	var corrupted := replay.state.duplicate(true)
 	corrupted.evening.actors["resident_000"].destination = "missing"
 	test.check(not restored.load_state(corrupted).ok, "Invalid activity destination is rejected before replacing live state")
+	corrupted = replay.state.duplicate(true)
+	corrupted.evening.baseline = {"people": ["broken"]}
+	test.check(not restored.load_state(corrupted).ok, "Malformed comparison is rejected before UI access")
+	corrupted = replay.state.duplicate(true)
+	corrupted.evening.actors.extra = {}
+	test.check(not restored.load_state(corrupted).ok, "Unexpected activity indexes are rejected")
+	var original_catalog := CBModLoader.create_catalog(false, false)
+	test.check(original_catalog.packs.size() == 4 and original_catalog.list_content("evening_services").is_empty(), "Foundation mode retains the original four-pack identity")
+	var expensive := scenario(catalog)
+	var unaffordable := recipe.duplicate(true)
+	unaffordable.capital = 1000000
+	test.check(not expensive.command({"type": "evening_recipe", "recipe": unaffordable}).ok and expensive.state.funds == 250000, "Unfunded construction is rejected atomically")
 	var old_time: int = restored.state.minute
 	test.check(not restored.command({"type": "evening_design", "key": "shortcut", "value": true}).ok and restored.state.minute == old_time, "Finished trials require a reset before editing")
 	test.check(restored.command({"type": "evening_reset"}).ok and restored.state.minute == 960 and restored.state.evening.attempts.size() == 1, "New trial keeps a compact result and resets the original people and budgets")

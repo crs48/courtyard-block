@@ -57,6 +57,7 @@ static func setup(sim: CBSimulation, design: Dictionary = {}) -> void:
 	for household in sim.state.households:
 		household.wallet = 35000
 		sim.state.evening.pantries[household.id] = {"raw": 0, "meals": 0}
+	for shop in sim.state.shops: shop.business = ""
 	sim._record_metrics()
 
 static func clock(minute: int) -> String:
@@ -154,6 +155,7 @@ static func _add_facility(e: Dictionary, definition: Dictionary, space: String, 
 	e.facilities[definition.id] = {"definition": definition.duplicate(true), "space": space, "local": local, "stock": int(definition.stock), "busy": [], "served": 0}
 
 static func _pay(sim: CBSimulation, amount: int, reason: String) -> bool:
+	if amount == 0: return true
 	if not sim._spend(amount, reason): return false
 	sim.state.evening.operating += amount
 	return true
@@ -287,7 +289,7 @@ static func _update(sim: CBSimulation, person: Dictionary) -> void:
 			e.pantries[person.household].raw += 3
 			_event(sim, person.id, "groceries", "Collected three portions at %s. Bringing groceries home." % facility.definition.name)
 			_move(sim, person, person.home, travel_time(sim, person, facility), "returning")
-		return
+			return
 	if actor.status == "cooking":
 		actor.labor += 1
 		if now < actor.until: return
@@ -330,6 +332,7 @@ static func _update(sim: CBSimulation, person: Dictionary) -> void:
 		return
 	if actor.shopper and pantry.raw >= 3 and person.node == sim.spaces[person.home].node:
 		var error := _resources_error(e, 6.0, 0.6, 6.0, 0.36)
+		if error.is_empty() and sim.state.funds < _utility_cost(6.0, 0.6, 6.0): error = "Shared funds cannot cover cooking utilities."
 		if error.is_empty():
 			pantry.raw -= 3
 			_consume(sim, 6.0, 0.6, 6.0, 0.36)
@@ -381,7 +384,9 @@ static func _serve(sim: CBSimulation, person: Dictionary, staff_meal: bool = fal
 	if not staff_meal and now + int(d.duration) > int(d.close): failure = "Closed before service could finish."
 	elif facility.stock < quantity: failure = "Not enough food in stock."
 	elif household.wallet < cost: failure = "Household cannot afford this purchase."
-	elif facility.local: failure = _resources_error(e, float(d.water) * quantity, float(d.power) * quantity, float(d.sewage) * quantity, float(d.waste) * quantity)
+	elif facility.local:
+		failure = _resources_error(e, float(d.water) * quantity, float(d.power) * quantity, float(d.sewage) * quantity, float(d.waste) * quantity)
+		if failure.is_empty() and sim.state.funds + cost < _utility_cost(float(d.water) * quantity, float(d.power) * quantity, float(d.sewage) * quantity): failure = "Shared funds cannot cover service utilities."
 	if not failure.is_empty():
 		_event(sim, person.id, "blocked", "%s: %s" % [d.name, failure])
 		actor.tried.append(actor.service)
@@ -422,6 +427,7 @@ static func _resources_error(e: Dictionary, water: float, power: float, sewage: 
 	return ""
 
 static func _consume(sim: CBSimulation, water: float, power: float, sewage: float, waste: float) -> void:
+	_pay(sim, _utility_cost(water, power, sewage), "Metered water, wastewater and electricity")
 	var r: Dictionary = sim.state.evening.resources
 	r.water -= water
 	r.power -= power
@@ -430,6 +436,9 @@ static func _consume(sim: CBSimulation, water: float, power: float, sewage: floa
 	sim.state.totals.water_l += water
 	sim.state.totals.power_kwh += power
 	sim.state.totals.waste_kg += waste
+
+static func _utility_cost(water: float, power: float, sewage: float) -> int:
+	return ceili(water * 0.5 + power * 28.0 + sewage * 0.5)
 
 static func _eaten(sim: CBSimulation, person: Dictionary, where_value: String) -> void:
 	var actor: Dictionary = sim.state.evening.actors[person.id]
@@ -455,6 +464,15 @@ static func save_error(saved: Dictionary, catalog: CBCatalog) -> String:
 	if not CBValidation.fields(e, {"version": "number", "phase": "string", "design": "object", "actors": "object", "pantries": "object", "facilities": "object", "resources": "object", "events": "array", "undo": "array", "baseline": "object", "attempts": "array", "capital": "number", "operating": "number", "income": "number", "external_wages": "number", "external_spending": "number", "staff_paid": "number"}): return "Incomplete evening save."
 	if e.version != VERSION or not e.phase in ["design", "running", "complete"] or saved.minute < START or saved.minute > END: return "Unsupported evening state."
 	if saved.residents.size() != 24 or saved.households.size() != 8 or e.events.size() > 1024 or e.undo.size() > 20 or e.attempts.size() > 8: return "Invalid evening population or history."
+	if e.actors.size() != 24 or e.pantries.size() != 8: return "Invalid evening indexes."
+	if (e.phase == "design" and saved.minute != START) or (e.phase == "complete" and saved.minute != END): return "Evening phase and clock disagree."
+	for report_value in [e.baseline] + e.attempts:
+		if not report_value is Dictionary: return "Invalid experiment report."
+		if report_value.is_empty(): continue
+		if not CBValidation.fields(report_value, {"fed": "number", "on_time": "number", "free": "number", "travel": "number", "wait": "number", "labor": "number", "spending": "number", "capital": "number", "operating": "number", "income": "number", "water": "number", "power": "number", "waste": "number", "minute": "number", "people": "array", "design": "object"}) or report_value.people.size() != 24 or report_value.minute != END: return "Incomplete experiment report."
+		for i in report_value.people.size():
+			var person: Variant = report_value.people[i]
+			if not CBValidation.fields(person, {"id": "string", "name": "string", "meal_at": "number", "free": "number", "labor": "number", "travel": "number", "wait": "number", "spent": "number"}) or person.id != saved.residents[i].id: return "Experiment report has a different resident cohort."
 	for design in [e.design] + e.undo:
 		if not CBValidation.fields(design, {"shortcut": "bool", "late_hours": "bool", "service": "string", "space": "string", "recipe": "object", "water": "bool", "power": "bool", "sewage": "bool", "collection": "bool"}): return "Invalid evening design."
 		if design.service == "workshop:prototype":
@@ -471,6 +489,9 @@ static func save_error(saved: Dictionary, catalog: CBCatalog) -> String:
 		var a: Variant = e.actors.get(person.id)
 		if not CBValidation.fields(a, {"work_end": "number", "status": "string", "until": "number", "destination": "string", "service": "string", "meal_at": "number", "free": "number", "travel": "number", "wait": "number", "labor": "number", "spent": "number", "tried": "array", "paid": "bool", "shopper": "bool", "pace": "number", "staff": "string", "queued_at": "number"}): return "Invalid evening resident."
 		if not a.status in ["work", "idle", "staff", "staff_ready", "outbound", "returning", "walking_home", "queue", "service", "cooking", "eating"] or a.pace <= 0 or a.tried.size() > 16: return "Invalid activity."
+		if a.free < 0 or a.free > CLUB_END - CLUB_START or a.labor < 0 or a.spent < 0 or a.travel < 0 or a.wait < 0 or a.work_end < START or a.work_end > END: return "Invalid activity accounting."
+		if a.status in ["queue", "service", "outbound"] and a.service.is_empty(): return "Activity needs a provider."
+		if a.status in ["staff", "staff_ready"] and a.staff.is_empty(): return "Shift needs a workplace."
 		for key in ["service", "staff"]:
 			if not a[key].is_empty() and not e.facilities.has(a[key]): return "Missing activity provider."
 		var found := false
@@ -481,6 +502,7 @@ static func save_error(saved: Dictionary, catalog: CBCatalog) -> String:
 		var pantry: Variant = e.pantries.get(household.id)
 		if not CBValidation.fields(pantry, {"raw": "number", "meals": "number"}) or pantry.raw < 0 or pantry.meals < 0: return "Invalid food inventory."
 	if e.facilities.size() > 3: return "Too many evening facilities."
+	var reservations: Dictionary = {}
 	for id in e.facilities:
 		var f: Variant = e.facilities[id]
 		if not CBValidation.fields(f, {"definition": "object", "space": "string", "local": "bool", "stock": "number", "busy": "array", "served": "number"}): return "Invalid facility."
@@ -491,6 +513,9 @@ static func save_error(saved: Dictionary, catalog: CBCatalog) -> String:
 		if not found: return "Invalid facility location."
 		for slot in f.busy:
 			if not CBValidation.fields(slot, {"actor": "string", "until": "number"}) or not e.actors.has(slot.actor): return "Invalid slot reservation."
+			if reservations.has(slot.actor): return "Resident has multiple simultaneous reservations."
+			reservations[slot.actor] = true
+			if e.actors[slot.actor].service != id or e.actors[slot.actor].status != "service" or e.actors[slot.actor].until != slot.until: return "Reservation and activity disagree."
 	for event in e.events:
 		if not CBValidation.fields(event, {"minute": "number", "actor": "string", "kind": "string", "text": "string"}): return "Invalid event record."
 	return ""
