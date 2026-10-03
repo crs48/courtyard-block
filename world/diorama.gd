@@ -50,7 +50,9 @@ func rebuild(data: Dictionary, content: CBCatalog, stress_count: int = 0) -> voi
 		for mark in range(-int(half), int(half), 4):
 			_box(Vector3(sign_value * (half + 5.1), -0.02, mark), Vector3(0.13, 0.05, 1.8), "#e7e3d5", -2)
 			_box(Vector3(mark, -0.02, sign_value * (half + 5.1)), Vector3(1.8, 0.05, 0.13), "#e7e3d5", -2)
-	if state.layout.kind == "courtyard":
+	if catalog.visuals.has(state.parameters.template):
+		_custom_building()
+	elif state.layout.kind == "courtyard":
 		_courtyard_building()
 	else:
 		_village()
@@ -82,6 +84,14 @@ func rebuild(data: Dictionary, content: CBCatalog, stress_count: int = 0) -> voi
 	selection.visible = false
 	add_child(selection)
 	set_floor(selected_floor)
+
+func _custom_building() -> void:
+	var primitives: Variant = catalog.visuals[state.parameters.template].call(state.layout.duplicate(true), state.parameters.duplicate(true))
+	if not primitives is Array: return
+	for primitive in primitives.slice(0, 100000):
+		if not CBValidation.fields(primitive, {"position": "array", "size": "array", "color": "string", "floor": "number", "shape": "string"}): continue
+		if not CBValidation.vector(primitive.position, 3) or not CBValidation.vector(primitive.size, 3): continue
+		_shape(CBSpatial.vector(primitive.position), CBSpatial.vector(primitive.size), primitive.color, int(primitive.floor), primitive.shape, bool(primitive.get("wall", false)))
 
 func _courtyard_building() -> void:
 	var width: float = state.layout.width

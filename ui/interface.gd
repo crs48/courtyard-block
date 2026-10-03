@@ -146,7 +146,11 @@ func _responsive() -> void:
 	inspector.size = Vector2(306 if compact else 342, maxf(120, viewport_size.y - (188 if compact else 218)))
 	save_button.position = Vector2(viewport_size.x - 184, 30)
 	bottom_bar.size.x = 460 if compact else 530
-	floor_bar.position.x = viewport_size.x - 322
+	bottom_bar.position = Vector2(28, viewport_size.y - 92)
+	floor_bar.position = Vector2(viewport_size.x - 322, viewport_size.y - 82)
+	status_label.position = Vector2(30, viewport_size.y - 22)
+	status_label.size.x = viewport_size.x - 60
+	status_label.clip_text = true
 	for button in buttons.values():
 		button.custom_minimum_size = Vector2(136 if compact else 164, 42)
 
@@ -332,7 +336,7 @@ func _experiments() -> void:
 	_heading("Other possibilities")
 	_text("Keep a baseline, change one thing, and compare both communities at the same point in time.")
 	var unlimited := CheckButton.new()
-	unlimited.text = "Unlimited experiment funds"
+	unlimited.text = "Unlimited funds"
 	unlimited.button_pressed = sim.state.policies.unlimited_funds
 	unlimited.toggled.connect(func(value: bool) -> void: action.emit({"type": "policy", "key": "unlimited_funds", "value": value}))
 	body.add_child(unlimited)
@@ -352,6 +356,7 @@ func _experiments() -> void:
 	_button(body, "Export community", func() -> void: action.emit({"ui": "export"}))
 	_button(body, "Import community", func() -> void: action.emit({"ui": "import"}))
 	_button(body, "Load last save", func() -> void: action.emit({"ui": "load"}))
+	_button(body, "Start a new community", func() -> void: action.emit({"ui": "new_community"}))
 	_text("A grounded game model, not a prediction. Housing and water benchmarks are documented; behavior and balancing assumptions are adjustable.")
 
 func _mods() -> void:

@@ -25,6 +25,9 @@ var benchmark := false
 var screenshot_path := ""
 var frames := 0
 var frame_times: Array[float] = []
+var last_frame_usec := 0
+var simulated_steps := 0
+var step_times: Array[float] = []
 var stress_count := 0
 var save_locked := false
 var startup_issue := ""
@@ -132,12 +135,16 @@ func _update_camera() -> void:
 func _process(delta: float) -> void:
 	if sim == null or diorama == null: return
 	frames += 1
-	if (smoke or benchmark) and frames > 120: frame_times.append(delta * 1000.0)
+	var now := Time.get_ticks_usec()
+	if (smoke or benchmark) and frames > 120: frame_times.append((now - last_frame_usec) / 1000.0)
+	last_frame_usec = now
 	if not paused:
 		accumulated += delta * speed
 	var steps := 0
 	while (accumulated >= 1.0 or pending_steps > 0) and steps < 8:
 		sim.step()
+		simulated_steps += 1
+		if smoke or benchmark: step_times.append(sim.last_step_usec / 1000.0)
 		if pending_steps > 0: pending_steps -= 1
 		else: accumulated -= 1.0
 		steps += 1
@@ -173,7 +180,8 @@ func _finish_smoke() -> void:
 	if not screenshot_path.is_empty() and DisplayServer.get_name() != "headless":
 		get_viewport().get_texture().get_image().save_png(screenshot_path)
 	frame_times.sort()
-	var report := {"platform": OS.get_name(), "renderer": RenderingServer.get_current_rendering_method(), "residents": sim.state.residents.size(), "stress_objects": stress_count, "catalogue": catalog.list_content("furniture").size(), "frames": frame_times.size(), "p95_ms": frame_times[int(frame_times.size() * 0.95)] if not frame_times.is_empty() else 0, "simulation_step_ms": sim.last_step_usec / 1000.0}
+	step_times.sort()
+	var report := {"platform": OS.get_name(), "renderer": RenderingServer.get_current_rendering_method(), "residents": sim.state.residents.size(), "stress_objects": stress_count, "catalogue": catalog.list_content("furniture").size(), "frames": frame_times.size(), "p95_ms": _percentile(frame_times, 0.95), "p99_ms": _percentile(frame_times, 0.99), "maximum_ms": frame_times.back() if not frame_times.is_empty() else 0, "simulation_steps": simulated_steps, "simulation_step_p95_ms": _percentile(step_times, 0.95), "viewport": str(get_viewport().get_visible_rect().size), "debug_build": OS.is_debug_build()}
 	print("SMOKE_OK " + JSON.stringify(report))
 	if OS.has_feature("web"):
 		JavaScriptBridge.get_interface("window").courtyardBenchmark = JSON.stringify(report)
@@ -181,10 +189,14 @@ func _finish_smoke() -> void:
 		set_process(false)
 		return
 	if benchmark:
-		DirAccess.make_dir_recursive_absolute("res://artifacts")
-		var report_file := FileAccess.open("res://artifacts/native-benchmark.json", FileAccess.WRITE)
+		var report_directory := "res://artifacts" if OS.has_feature("editor") else "user://benchmarks"
+		DirAccess.make_dir_recursive_absolute(report_directory)
+		var report_file := FileAccess.open(report_directory.path_join("native-benchmark.json"), FileAccess.WRITE)
 		if report_file != null: report_file.store_string(JSON.stringify(report, "  "))
 	get_tree().quit()
+
+func _percentile(values: Array[float], fraction: float) -> float:
+	return values[mini(values.size() - 1, int(values.size() * fraction))] if not values.is_empty() else 0.0
 
 func _on_action(command: Dictionary) -> void:
 	if command.has("type"):
@@ -256,6 +268,7 @@ func _on_action(command: Dictionary) -> void:
 			interface.speed_button.text = "Play"
 			pending_steps = 96 * 7
 			interface.toast("Living through one week…")
+		"new_community": _new_community()
 		"export": _export_save()
 		"import": _pick_file("save")
 		"install_mod":
@@ -276,6 +289,30 @@ func _restore(data: Dictionary) -> void:
 		interface.selected_resident = ""
 		interface.show_panel(interface.pane)
 		_update_comparison()
+
+func _new_community() -> void:
+	var stamp := str(int(Time.get_unix_time_from_system())) + "-" + str(Time.get_ticks_usec())
+	for path in [CBSaves.SAVE_PATH, CBSaves.FORK_PATH]:
+		if FileAccess.file_exists(path):
+			var backup: String = str(path).get_basename() + ".backup-" + stamp + ".json"
+			if DirAccess.copy_absolute(path, backup) != OK:
+				interface.toast("Unable to back up the previous community; no changes made.")
+				return
+	if FileAccess.file_exists(CBSaves.FORK_PATH): DirAccess.remove_absolute(CBSaves.FORK_PATH)
+	other_branch = {}
+	save_locked = false
+	pending_steps = 0
+	accumulated = 0
+	sim.create()
+	interface.comparison = {}
+	interface.selected_home = ""
+	interface.selected_resident = ""
+	diorama.rebuild(sim.state, catalog)
+	diorama.set_floor(2)
+	interface.floor_label.text = "Floor 2"
+	interface.show_panel("Overview")
+	interface.toast("New community started. Previous saves are kept as timestamped backups.")
+	CBSaves.write(CBSaves.SAVE_PATH, sim.state)
 
 func _update_comparison() -> void:
 	if other_branch.is_empty(): return

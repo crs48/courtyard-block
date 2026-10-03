@@ -15,9 +15,9 @@ sequenceDiagram
     Registry-->>Simulation: Validated effects
 ```
 
-- [ ] Implement registries and useful validation errors
-- [ ] Implement portable saves with pack fingerprints and explicit mod state
-- [ ] Provide trusted GDScript mod templates and packaging tools
-- [ ] Test duplicate IDs, dependency cycles, missing packs, and repeatable execution
+- [x] Implement registries and useful validation errors
+- [x] Implement portable saves with pack fingerprints and explicit mod state
+- [x] Provide trusted GDScript mod templates and packaging tools
+- [x] Test duplicate IDs, dependency cycles, missing packs, and repeatable execution
 
 Keep gameplay state in plain serializable values; display nodes are projections. Reject malformed data before activating a pack. Trusted scripts have the application's capabilities and are not sandboxed.

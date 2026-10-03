@@ -25,20 +25,20 @@ flowchart LR
 
 ## Implementation checklist
 
-- [ ] Registry, dependency validation, and runtime trusted mod loading
-- [ ] Parametric courtyard, resident routing, and repeatable simulation
-- [ ] Co-op economy, utilities, businesses, furnishing, and resident inspection
-- [ ] Warm diorama, floor cutaways, desktop and touch interaction
-- [ ] Save/resume, import/export, experiment forks, and comparisons
-- [ ] Furniture, community-kitchen, and alternative-settlement example mods
-- [ ] SDK, economic assumptions, and export documentation
+- [x] Registry, dependency validation, and runtime trusted mod loading
+- [x] Parametric courtyard, resident routing, and repeatable simulation
+- [x] Co-op economy, utilities, businesses, furnishing, and resident inspection
+- [x] Warm diorama, floor cutaways, desktop and touch interaction
+- [x] Save/resume, import/export, experiment forks, and comparisons
+- [x] Furniture, community-kitchen, and alternative-settlement example mods
+- [x] SDK, economic assumptions, and export documentation
 
 ## Validation checklist
 
-- [ ] Headless integration and invariant tests
-- [ ] Native rendered smoke test and benchmark
-- [ ] Browser export and interaction smoke test
-- [ ] Android development export and emulator smoke test
+- [x] Headless integration and invariant tests
+- [x] Native rendered smoke test and benchmark
+- [x] Browser export and interaction smoke test
+- [x] Android development export and emulator smoke test
 - [ ] iOS development export and simulator smoke test
 - [ ] Physical iPhone 13/Pixel 7-class sustained 60 fps validation
 
@@ -54,3 +54,5 @@ Multiplayer, a marketplace, public app-store distribution, and arbitrary freefor
 - [MultiMesh](https://docs.godotengine.org/en/stable/tutorials/performance/using_multimesh.html)
 - [Statistics Austria housing costs](https://www.statistik.at/en/statistics/population-and-society/housing/housing-costs)
 - [Vienna water consumption](https://www.wien.gv.at/umwelt/eu-trinkwasserrichtlinie)
+
+Validation details and outstanding platform gates: [current report](../../validation.md). The iOS project builds, but simulator rendering and physical-device performance remain unresolved.

@@ -8,6 +8,7 @@ func _initialize() -> void:
 	check(catalog.errors.is_empty(), "Bundled packs load: " + str(catalog.errors))
 	check(catalog.packs.size() == 4, "All four packs registered")
 	check(catalog.generators.has("garden_village:cluster"), "Mod generator registered")
+	check(catalog.visuals.has("garden_village:cluster"), "Mod owns its building visuals")
 	check(catalog.systems.size() == 1 and catalog.panels.size() == 1, "Behavior and panel hooks registered")
 	if not catalog.errors.is_empty():
 		_finish()
@@ -60,6 +61,8 @@ func _initialize() -> void:
 	sim.state.funds = 100000000
 	check(sim.command({"type": "rebuild", "parameters": {"template": "garden_village:cluster"}}).ok, "Alternative settlement generated without core edits")
 	check(sim.state.residents.size() == 150, "Rebuild preserves all people")
+	var shapes: Array = catalog.visuals["garden_village:cluster"].call(sim.state.layout, sim.state.parameters)
+	check(not shapes.is_empty() and CBValidation.vector(shapes[0].size, 3), "Generator supplies batched visual primitives")
 	for person in sim.state.residents:
 		check(sim.spaces.has(person.home), "Every person retains a valid home")
 	var kitchen := CBSimulation.new(catalog)

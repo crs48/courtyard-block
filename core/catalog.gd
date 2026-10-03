@@ -7,6 +7,7 @@ var definitions: Dictionary = {}
 var generators: Dictionary = {}
 var systems: Array[Dictionary] = []
 var panels: Dictionary = {}
+var visuals: Dictionary = {}
 var packs: Dictionary = {}
 var errors: Array[String] = []
 var active_pack := ""
@@ -61,6 +62,12 @@ func register_panel(id: String, callback: Callable) -> void:
 		errors.append("Duplicate panel: " + id)
 	else:
 		panels[id] = callback
+
+func register_visual(id: String, callback: Callable) -> void:
+	if not _valid_id(id) or not callback.is_valid() or visuals.has(id):
+		errors.append("Invalid or duplicate building visual: " + id)
+	else:
+		visuals[id] = callback
 
 func get_definition(kind: String, id: String) -> Dictionary:
 	return definitions.get(kind, {}).get(id, {})

@@ -50,7 +50,7 @@ static func load_roots(roots: Array) -> CBCatalog:
 					ready = false
 			if not ready:
 				continue
-			var before := {"definitions": catalog.definitions.duplicate(true), "generators": catalog.generators.duplicate(), "systems": catalog.systems.duplicate(), "panels": catalog.panels.duplicate()}
+			var before := {"definitions": catalog.definitions.duplicate(true), "generators": catalog.generators.duplicate(), "systems": catalog.systems.duplicate(), "panels": catalog.panels.duplicate(), "visuals": catalog.visuals.duplicate()}
 			var error_count := catalog.errors.size()
 			catalog.active_pack = str(id)
 			_register(catalog, manifest)
@@ -60,6 +60,7 @@ static func load_roots(roots: Array) -> CBCatalog:
 				catalog.generators = before.generators
 				catalog.systems.assign(before.systems)
 				catalog.panels = before.panels
+				catalog.visuals = before.visuals
 			pending.erase(id)
 			progress = true
 		if not progress:
