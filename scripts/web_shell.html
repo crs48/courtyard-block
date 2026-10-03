@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Courtyard Block</title>
+$GODOT_HEAD_INCLUDE
+<style>
+html,body,canvas{margin:0;width:100%;height:100%;overflow:hidden;background:#e6e5d9;touch-action:none}
+canvas{display:block;outline:none}#loading{position:fixed;inset:0;display:grid;place-content:center;gap:20px;color:#293e35;font:16px system-ui;text-align:center}h1{font-size:32px;font-weight:500;margin:0}progress{width:280px;accent-color:#426954}#error{max-width:520px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="0" aria-label="Courtyard Block community simulation"></canvas>
+<div id="loading"><h1>Courtyard Block</h1><span>A small place. A shared life.</span><progress id="progress"></progress><div id="error" role="alert"></div></div>
+<script src="$GODOT_URL"></script>
+<script>
+const config = $GODOT_CONFIG;
+const query = new URLSearchParams(location.search);
+if(query.has('benchmark')) config.args = ['--','--smoke','--benchmark'];
+else if(query.has('smoke')) config.args = ['--','--smoke'];
+const engine = new Engine(config);
+engine.startGame({canvas:document.getElementById('canvas'),onProgress:(current,total)=>{
+ const progress=document.getElementById('progress');
+ if(total>0){progress.max=total;progress.value=current;}
+}}).then(()=>{document.getElementById('loading').remove();document.getElementById('canvas').focus();})
+.catch(error=>{document.getElementById('error').textContent='Unable to start: '+error.message+'\nThis game needs WebGL 2 in a current browser.';});
+</script>
+</body>
+</html>

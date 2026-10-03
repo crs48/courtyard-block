@@ -26,6 +26,9 @@ var buttons: Dictionary = {}
 var curve: CBHistoryChart
 var speed_button: Button
 var save_button: Button
+var compact_navigation: OptionButton
+var bottom_bar: PanelContainer
+var floor_bar: HBoxContainer
 var floor_spin: SpinBox
 var width_spin: SpinBox
 var court_spin: SpinBox
@@ -68,6 +71,12 @@ func setup(model: CBSimulation) -> void:
 	nav.add_theme_constant_override("separation", 9)
 	root.add_child(nav)
 	var names := ["Overview", "Residents", "Build", "Co-op", "Experiments", "Mods"]
+	compact_navigation = OptionButton.new()
+	for section in names: compact_navigation.add_item(section)
+	compact_navigation.position = Vector2(250, 30)
+	compact_navigation.size = Vector2(170, 44)
+	compact_navigation.item_selected.connect(func(index: int) -> void: show_panel(names[index]))
+	root.add_child(compact_navigation)
 	for i in names.size():
 		var section: String = names[i]
 		var button := _button(nav, "%02d   %s" % [i + 1, section], func() -> void: show_panel(section))
@@ -88,6 +97,7 @@ func setup(model: CBSimulation) -> void:
 	body.add_theme_constant_override("separation", 14)
 	scroll.add_child(body)
 	var bottom := PanelContainer.new()
+	bottom_bar = bottom
 	bottom.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	bottom.position = Vector2(28, -92)
 	bottom.size = Vector2(530, 64)
@@ -96,7 +106,7 @@ func setup(model: CBSimulation) -> void:
 	var tools := HBoxContainer.new()
 	tools.add_theme_constant_override("separation", 10)
 	bottom.add_child(tools)
-	speed_button = _button(tools, "Ⅱ  Pause", func() -> void: action.emit({"ui": "pause"}))
+	speed_button = _button(tools, "Pause", func() -> void: action.emit({"ui": "pause"}))
 	var speed := OptionButton.new()
 	for value in ["1×", "5×", "20×"]: speed.add_item(value)
 	speed.item_selected.connect(func(index: int) -> void: action.emit({"ui": "speed", "value": [1, 5, 20][index]}))
@@ -105,8 +115,9 @@ func setup(model: CBSimulation) -> void:
 	date_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_button(tools, "−", func() -> void: action.emit({"ui": "zoom", "value": 1.12}))
 	_button(tools, "+", func() -> void: action.emit({"ui": "zoom", "value": 0.89}))
-	_button(tools, "↶", func() -> void: action.emit({"ui": "rotate", "value": -PI / 2.0}))
+	_button(tools, "Rotate", func() -> void: action.emit({"ui": "rotate", "value": -PI / 2.0}))
 	var floors := HBoxContainer.new()
+	floor_bar = floors
 	floors.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	floors.position = Vector2(-360, -82)
 	floors.add_theme_constant_override("separation", 10)
@@ -128,15 +139,21 @@ func _responsive() -> void:
 	var viewport_size := get_viewport().get_visible_rect().size
 	var compact := viewport_size.x < 1100
 	metrics_bar.visible = not compact
+	nav.visible = not compact
+	compact_navigation.visible = compact
 	nav.position.y = 156 if compact else 178
-	inspector.position = Vector2(viewport_size.x - (334 if compact else 370), 112)
-	inspector.size = Vector2(306 if compact else 342, maxf(190, viewport_size.y - 218))
+	inspector.position = Vector2(viewport_size.x - (334 if compact else 370), 88 if compact else 112)
+	inspector.size = Vector2(306 if compact else 342, maxf(120, viewport_size.y - (188 if compact else 218)))
 	save_button.position = Vector2(viewport_size.x - 184, 30)
+	bottom_bar.size.x = 460 if compact else 530
+	floor_bar.position.x = viewport_size.x - 322
 	for button in buttons.values():
 		button.custom_minimum_size = Vector2(136 if compact else 164, 42)
 
 func show_panel(section: String) -> void:
 	pane = section
+	for i in compact_navigation.item_count:
+		if compact_navigation.get_item_text(i) == section: compact_navigation.select(i)
 	dynamic_labels.clear()
 	curve = null
 	for child in body.get_children():
@@ -168,8 +185,8 @@ func _overview() -> void:
 	body.add_child(curve)
 	dynamic_labels.summary = _label(body, "", 14, GREEN)
 	_text("Happiness has many sides. Look at individual stories as well as the average.")
-	_button(body, "Meet your neighbours  →", func() -> void: show_panel("Residents"))
-	_button(body, "Shape your building  →", func() -> void: show_panel("Build"))
+	_button(body, "Meet your neighbours", func() -> void: show_panel("Residents"))
+	_button(body, "Shape your building", func() -> void: show_panel("Build"))
 	_separator()
 	_eyebrow("A SMALL IDEA")
 	_text("Try a reading nook, a new shop, or supper together. Fork your community to see what changes.")
@@ -198,7 +215,7 @@ func _residents() -> void:
 			dynamic_labels.reason = _label(body, person.reason, 14, INK)
 			dynamic_labels.reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			_button(body, "Visit their apartment", func() -> void: action.emit({"ui": "home", "id": person.home}))
-			_button(body, "← All neighbours", func() -> void: selected_resident = ""; show_panel("Residents"))
+			_button(body, "All neighbours", func() -> void: selected_resident = ""; show_panel("Residents"))
 			return
 	var search := LineEdit.new()
 	search.placeholder_text = "Find a name or an interest…"
@@ -245,7 +262,7 @@ func _build() -> void:
 				button.tooltip_text = str(item.get("description", ""))
 		search.text_changed.connect(populate)
 		populate.call("")
-		_button(body, "← Building design", func() -> void: selected_home = ""; show_panel("Build"))
+		_button(body, "Building design", func() -> void: selected_home = ""; show_panel("Build"))
 		return
 	_text("Explore a new shape for your community. Existing households stay together.")
 	template_option = OptionButton.new()
@@ -267,9 +284,11 @@ func _build() -> void:
 	dynamic_labels.estimate = _label(body, "", 13, GREEN)
 	dynamic_labels.estimate.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var estimate := func(_value: Variant = null) -> void:
-		var cost := int(250000.0 * absf(width_spin.value - float(sim.state.parameters.width)) + 2000000 * absi(int(floor_spin.value) - int(sim.state.parameters.floors)) + 1000000)
+		court_spin.max_value = minf(24, width_spin.value - 16)
+		var cost := sim.building_cost({"width": width_spin.value, "floors": floor_spin.value, "material": material_option.get_selected_metadata()})
 		dynamic_labels.estimate.text = "Improvement budget: " + euros(cost)
 	for control in [floor_spin, width_spin, court_spin]: control.value_changed.connect(estimate)
+	material_option.item_selected.connect(estimate)
 	estimate.call()
 	_button(body, "Apply building improvements", func() -> void: action.emit({"type": "rebuild", "parameters": {"floors": int(floor_spin.value), "width": width_spin.value, "courtyard": court_spin.value, "material": material_option.get_selected_metadata(), "template": template_option.get_selected_metadata()}}))
 	_separator()

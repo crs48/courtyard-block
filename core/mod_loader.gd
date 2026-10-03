@@ -25,6 +25,10 @@ static func load_roots(roots: Array) -> CBCatalog:
 			catalog.errors.append("Invalid manifest: " + root)
 			continue
 		var manifest: Dictionary = parsed
+		var error := manifest_error(manifest)
+		if not error.is_empty():
+			catalog.errors.append(root + ": " + error)
+			continue
 		var id := str(manifest.get("id", ""))
 		if not valid_pack_id(id) or pending.has(id):
 			catalog.errors.append("Invalid or duplicate pack ID: " + id)
@@ -46,7 +50,16 @@ static func load_roots(roots: Array) -> CBCatalog:
 					ready = false
 			if not ready:
 				continue
+			var before := {"definitions": catalog.definitions.duplicate(true), "generators": catalog.generators.duplicate(), "systems": catalog.systems.duplicate(), "panels": catalog.panels.duplicate()}
+			var error_count := catalog.errors.size()
+			catalog.active_pack = str(id)
 			_register(catalog, manifest)
+			catalog.active_pack = ""
+			if catalog.errors.size() != error_count:
+				catalog.definitions = before.definitions
+				catalog.generators = before.generators
+				catalog.systems.assign(before.systems)
+				catalog.panels = before.panels
 			pending.erase(id)
 			progress = true
 		if not progress:
@@ -60,7 +73,7 @@ static func _register(catalog: CBCatalog, manifest: Dictionary) -> void:
 	for kind in manifest.get("content", {}):
 		for definition in manifest.content[kind]:
 			if not definition is Dictionary or not str(definition.get("id", "")).begins_with(pack_prefix):
-				catalog.errors.append("Definition is outside pack pack_prefix: " + str(manifest.id))
+				catalog.errors.append("Definition is outside pack namespace: " + str(manifest.id))
 				continue
 			catalog.register_content(str(kind), definition)
 	var entry := str(manifest.get("entry", ""))
@@ -72,7 +85,7 @@ static func _register(catalog: CBCatalog, manifest: Dictionary) -> void:
 		var path := str(manifest.root).path_join(entry)
 		digest_text += FileAccess.get_file_as_string(path)
 		var script: GDScript = load(path)
-		if script == null or not script.can_instantiate():
+		if script == null or not script.can_instantiate() or script.get_instance_base_type() != "RefCounted":
 			catalog.errors.append("Cannot load script: " + path)
 			return
 		var extension: RefCounted = script.new()
@@ -92,6 +105,17 @@ static func valid_pack_id(id: String) -> bool:
 		if not character in "abcdefghijklmnopqrstuvwxyz0123456789_-":
 			return false
 	return true
+
+static func manifest_error(manifest: Dictionary) -> String:
+	if not CBValidation.fields(manifest, {"id": "string", "name": "string", "version": "string", "api_version": "number", "dependencies": "object", "content": "object"}): return "Manifest needs id, name, version, api_version, dependencies and content."
+	if not valid_pack_id(manifest.id) or manifest.version.is_empty() or int(manifest.api_version) != CBCatalog.API_VERSION: return "Invalid pack identity or unsupported API."
+	for dependency in manifest.dependencies:
+		if not valid_pack_id(str(dependency)) or not manifest.dependencies[dependency] is String: return "Invalid dependency."
+	for kind in manifest.content:
+		if not manifest.content[kind] is Array: return "Content groups must be arrays."
+		for definition in manifest.content[kind]:
+			if not definition is Dictionary: return "Definitions must be objects."
+	return ""
 
 static func safe_relative(path: String) -> bool:
 	return not path.is_empty() and not path.is_absolute_path() and not path.contains("..") and not path.contains(":") and not path.contains("\\")
@@ -113,6 +137,10 @@ static func install_zip(path: String) -> Dictionary:
 		zip.close()
 		return {"ok": false, "message": "Invalid manifest or pack ID."}
 	var id := str(manifest.id)
+	var manifest_issue := manifest_error(manifest)
+	if not manifest_issue.is_empty():
+		zip.close()
+		return {"ok": false, "message": manifest_issue}
 	if id in ["base", "soft_spaces", "community_kitchen", "garden_village"] or DirAccess.dir_exists_absolute(INSTALL_ROOT.path_join(id)):
 		zip.close()
 		return {"ok": false, "message": "Pack already exists. Remove it before installing another version."}

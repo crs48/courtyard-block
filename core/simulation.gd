@@ -11,6 +11,7 @@ var catalog: CBCatalog
 var state: Dictionary = {}
 var spatial := CBSpatial.new()
 var spaces: Dictionary = {}
+var household_incomes: Dictionary = {}
 var last_step_usec := 0
 var system_costs: Dictionary = {}
 
@@ -26,11 +27,12 @@ func create(parameters: Dictionary = {}, seed: int = 2406) -> void:
 	_index_spaces()
 	var homes: Array = layout.spaces.filter(func(space: Dictionary) -> bool: return space.kind == "home")
 	var population := mini(int(config.population), homes.size() * 4)
+	var household_size := maxi(2, ceili(float(population) / homes.size()))
 	state.parameters.population = population
 	for i in population:
-		var home: Dictionary = homes[i / 2 % homes.size()]
-		var household_id := "household_" + str(i / 2)
-		if i % 2 == 0:
+		var home: Dictionary = homes[i / household_size]
+		var household_id := "household_" + str(i / household_size)
+		if i % household_size == 0:
 			state.households.append({"id": household_id, "home": home.id, "wallet": 350000, "arrears": 0})
 		var interest: String = INTERESTS[_random(INTERESTS.size())]
 		var personality := _random(3)
@@ -42,6 +44,7 @@ func create(parameters: Dictionary = {}, seed: int = 2406) -> void:
 	for i in shop_spaces.size():
 		state.shops.append({"space": shop_spaces[i].id, "business": types[i % types.size()] if i < 4 else "", "profit": 0, "wallet": 250000, "visits": 0})
 	spatial.rebuild(layout)
+	_index_incomes()
 	_record_metrics()
 
 func _random(bound: int) -> int:
@@ -53,24 +56,30 @@ func _index_spaces() -> void:
 	for space in state.layout.spaces:
 		spaces[space.id] = space
 
+func _index_incomes() -> void:
+	household_incomes.clear()
+	for person in state.residents:
+		household_incomes[person.household] = float(household_incomes.get(person.household, 0)) + float(person.income)
+
 func load_state(saved: Dictionary) -> Dictionary:
 	var validation := validate_save(saved)
 	if not validation.ok:
 		return validation
 	state = saved.duplicate(true)
 	_index_spaces()
+	_index_incomes()
 	spatial.rebuild(state.layout)
 	return {"ok": true, "message": "Community restored."}
 
 func validate_save(saved: Dictionary) -> Dictionary:
 	if int(saved.get("schema_version", 0)) != SAVE_VERSION:
 		return {"ok": false, "message": "Unsupported save version."}
-	for key in ["layout", "residents", "households", "shops", "policies", "services", "parameters", "packs", "history", "ledger", "totals", "rng", "minute", "funds", "mod_state", "branch", "notices"]:
-		if not saved.has(key):
-			return {"ok": false, "message": "Save is missing " + key}
-	if not saved.layout is Dictionary or not saved.residents is Array or saved.residents.size() > 10000:
-		return {"ok": false, "message": "Invalid community data."}
+	var error := CBValidation.save_error(saved, catalog)
+	if not error.is_empty(): return _result(false, error)
+	var pack_ids: Dictionary = {}
 	for pack in saved.packs:
+		if pack_ids.has(pack.id): return _result(false, "Duplicate pack fingerprint.")
+		pack_ids[pack.id] = true
 		if not catalog.packs.has(pack.id) or catalog.packs[pack.id].version != pack.version or catalog.packs[pack.id].digest != pack.digest:
 			return {"ok": false, "message": "This save needs the matching pack: " + str(pack.id) + " " + str(pack.version)}
 	if saved.packs.size() != catalog.packs.size():
@@ -178,7 +187,8 @@ func _update_person(person: Dictionary, occupancy: Dictionary) -> void:
 		reliability += minf(1.0, float(state.services[service])) / 4.0
 	needs.comfort = clampf(comfort * reliability, 0.0, 100.0)
 	var social_weight := 1.6 if person.preference == "community" else 0.8
-	var burden := float(state.policies.contribution) / maxf(float(person.income) * 2.0, 1.0)
+	var household_income := float(household_incomes.get(person.household, 0))
+	var burden := float(state.policies.contribution) / maxf(household_income, 1.0)
 	person.wellbeing = clampf((needs.food + needs.rest + needs.social * social_weight + needs.comfort) / (3.0 + social_weight) - maxf(0.0, burden - 0.3) * 35.0, 0, 100)
 	var lowest := "food"
 	for need in needs:
@@ -219,7 +229,8 @@ func _settle_day() -> void:
 	state.totals.water_l += water
 	state.totals.power_kwh += power
 	state.totals.waste_kg += waste
-	var expense := int(water * 0.5 + power * 28.0 + waste * 18.0 + state.households.size() * 125)
+	var maintenance := float(catalog.get_definition("materials", state.parameters.material).get("maintenance", 1.0))
+	var expense := int(water * 0.5 + power * 28.0 + waste * 18.0 + state.households.size() * 125 * maintenance)
 	var affordable := _spend(expense, "Utilities & maintenance")
 	for service in state.services:
 		state.services[service] = minf(1.0, float(state.services[service]) + 0.05) if affordable else maxf(0.25, float(state.services[service]) - 0.1)
@@ -324,13 +335,18 @@ func command(action: Dictionary) -> Dictionary:
 		"rebuild":
 			var config: Dictionary = state.parameters.duplicate(true)
 			config.merge(action.get("parameters", {}), true)
+			config.floors = clampi(int(config.floors), 5, 7)
+			config.width = clampf(float(config.width), 28, 48)
+			config.courtyard = clampf(float(config.courtyard), 10, float(config.width) - 16)
 			if not catalog.generators.has(config.template) or catalog.get_definition("materials", config.material).is_empty():
 				return _result(false, "Unknown template or material.")
 			var layout: Dictionary = catalog.generators[config.template].call(config)
+			var layout_error := CBValidation.layout_error(layout, catalog)
+			if not layout_error.is_empty(): return _result(false, layout_error)
 			var homes: Array = layout.spaces.filter(func(space: Dictionary) -> bool: return space.kind == "home")
 			if homes.size() < state.households.size():
 				return _result(false, "This design needs at least %s homes for existing households." % state.households.size())
-			var cost := int(250000.0 * absf(float(config.width) - float(state.parameters.width)) + 2000000 * absi(int(config.floors) - int(state.parameters.floors)) + 1000000)
+			var cost := building_cost(config)
 			if not _spend(cost, "Building improvements"):
 				return _result(false, "This change needs €%s in shared funds." % (cost / 100))
 			for i in state.households.size():
@@ -359,6 +375,10 @@ func command(action: Dictionary) -> Dictionary:
 			spatial.rebuild(layout)
 			return _result(true, "Your new design is ready. Everyone has a home.", true)
 	return _result(false, "Unknown command.")
+
+func building_cost(config: Dictionary) -> int:
+	var multiplier := float(catalog.get_definition("materials", config.material).get("cost_multiplier", 1.0))
+	return int((250000.0 * absf(float(config.width) - float(state.parameters.width)) + 2000000 * absi(int(config.floors) - int(state.parameters.floors)) + 1000000) * multiplier)
 
 static func _result(ok: bool, message: String, geometry_changed: bool = false) -> Dictionary:
 	return {"ok": ok, "message": message, "geometry_changed": geometry_changed}

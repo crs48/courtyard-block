@@ -26,15 +26,22 @@ var screenshot_path := ""
 var frames := 0
 var frame_times: Array[float] = []
 var stress_count := 0
+var save_locked := false
+var startup_issue := ""
 
 func _ready() -> void:
+	get_window().content_scale_size = Vector2i.ZERO
+	_configure_scale()
+	get_window().size_changed.connect(_configure_scale)
 	for argument in OS.get_cmdline_user_args():
 		if argument == "--smoke": smoke = true
 		if argument == "--benchmark": benchmark = true
 		if argument.begins_with("--screenshot="): screenshot_path = argument.trim_prefix("--screenshot=")
 	catalog = CBModLoader.create_catalog(not smoke)
 	if not catalog.errors.is_empty():
-		push_error("Mod loading failed: " + str(catalog.errors))
+		startup_issue = "Mods could not load: " + "; ".join(catalog.errors)
+		push_warning(startup_issue)
+		save_locked = true
 		catalog = CBModLoader.create_catalog(false)
 	sim = CBSimulation.new(catalog)
 	sim.create({"population": 150 if benchmark else 64, "floors": 7 if benchmark else 6})
@@ -46,7 +53,12 @@ func _ready() -> void:
 		var loaded := CBSaves.read(CBSaves.SAVE_PATH)
 		if loaded.ok:
 			var result := sim.load_state(loaded.state)
-			if not result.ok: push_warning(result.message)
+			if not result.ok:
+				startup_issue = result.message
+				save_locked = true
+		else:
+			startup_issue = loaded.message
+			save_locked = true
 	if FileAccess.file_exists(CBSaves.FORK_PATH) and not smoke:
 		var loaded := CBSaves.read(CBSaves.FORK_PATH)
 		if loaded.ok: other_branch = loaded.state
@@ -58,6 +70,12 @@ func _ready() -> void:
 	add_child(interface)
 	interface.setup(sim)
 	interface.action.connect(_on_action)
+	if not startup_issue.is_empty():
+		var notice := AcceptDialog.new()
+		notice.title = "Your saved community is protected"
+		notice.dialog_text = startup_issue + "\n\nA temporary community is open. Restore the matching packs to resume.\nAutosave is disabled; export any new work separately."
+		add_child(notice)
+		notice.popup_centered(Vector2i(600, 200))
 	if not benchmark:
 		diorama.set_floor(2)
 		interface.floor_label.text = "Floor 2"
@@ -67,8 +85,17 @@ func _ready() -> void:
 	_update_camera()
 	if smoke and not benchmark:
 		paused = true
-		interface.speed_button.text = "▶  Play"
+		interface.speed_button.text = "Play"
 	if benchmark: speed = 20
+
+func _configure_scale() -> void:
+	var scale_value := 1.0
+	if OS.has_feature("web"):
+		scale_value = float(JavaScriptBridge.eval("window.devicePixelRatio || 1"))
+	elif OS.has_feature("mobile"):
+		scale_value = maxf(1.0, float(get_window().size.y) / 390.0)
+	if not is_equal_approx(get_window().content_scale_factor, scale_value):
+		get_window().content_scale_factor = scale_value
 
 func _environment() -> void:
 	var environment_node := WorldEnvironment.new()
@@ -122,7 +149,7 @@ func _process(delta: float) -> void:
 	if refresh_accumulated > 0.5:
 		refresh_accumulated = 0.0
 		interface.refresh()
-	if autosave_accumulated > 30 and not smoke and not benchmark:
+	if autosave_accumulated > 30 and not smoke and not benchmark and not save_locked:
 		autosave_accumulated = 0.0
 		CBSaves.write(CBSaves.SAVE_PATH, sim.state)
 	if smoke and frames == 90:
@@ -148,6 +175,11 @@ func _finish_smoke() -> void:
 	frame_times.sort()
 	var report := {"platform": OS.get_name(), "renderer": RenderingServer.get_current_rendering_method(), "residents": sim.state.residents.size(), "stress_objects": stress_count, "catalogue": catalog.list_content("furniture").size(), "frames": frame_times.size(), "p95_ms": frame_times[int(frame_times.size() * 0.95)] if not frame_times.is_empty() else 0, "simulation_step_ms": sim.last_step_usec / 1000.0}
 	print("SMOKE_OK " + JSON.stringify(report))
+	if OS.has_feature("web"):
+		JavaScriptBridge.get_interface("window").courtyardBenchmark = JSON.stringify(report)
+		paused = true
+		set_process(false)
+		return
 	if benchmark:
 		DirAccess.make_dir_recursive_absolute("res://artifacts")
 		var report_file := FileAccess.open("res://artifacts/native-benchmark.json", FileAccess.WRITE)
@@ -167,7 +199,7 @@ func _on_action(command: Dictionary) -> void:
 	match command.get("ui", ""):
 		"pause":
 			paused = not paused
-			interface.speed_button.text = "▶  Play" if paused else "Ⅱ  Pause"
+			interface.speed_button.text = "Play" if paused else "Pause"
 		"speed": speed = int(command.value)
 		"zoom": camera.size = clampf(camera.size * float(command.value), 18, 160)
 		"rotate":
@@ -193,12 +225,15 @@ func _on_action(command: Dictionary) -> void:
 			interface.floor_label.text = "Floor %s" % space.floor
 			diorama.highlight(space)
 			interface.show_panel("Build")
-		"save": interface.toast(CBSaves.write(CBSaves.SAVE_PATH, sim.state).message)
+		"save": interface.toast("Saved community is protected. Export this community instead." if save_locked else CBSaves.write(CBSaves.SAVE_PATH, sim.state).message)
 		"load":
 			var saved := CBSaves.read(CBSaves.SAVE_PATH)
 			if saved.ok: _restore(saved.state)
 			else: interface.toast(saved.message)
 		"fork":
+			if save_locked:
+				interface.toast("Restore the matching packs before replacing saved experiment branches.")
+				return
 			other_branch = sim.state.duplicate(true)
 			other_branch.branch.origin_minute = sim.state.minute
 			CBSaves.write(CBSaves.FORK_PATH, other_branch)
@@ -218,7 +253,7 @@ func _on_action(command: Dictionary) -> void:
 				_update_comparison()
 		"week":
 			paused = true
-			interface.speed_button.text = "▶  Play"
+			interface.speed_button.text = "Play"
 			pending_steps = 96 * 7
 			interface.toast("Living through one week…")
 		"export": _export_save()
@@ -363,7 +398,7 @@ func _select_at(screen: Vector2) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if sim != null and not smoke and not benchmark: CBSaves.write(CBSaves.SAVE_PATH, sim.state)
+		if sim != null and not smoke and not benchmark and not save_locked: CBSaves.write(CBSaves.SAVE_PATH, sim.state)
 		get_tree().quit()
-	if what == NOTIFICATION_APPLICATION_PAUSED and sim != null and not smoke:
+	if what == NOTIFICATION_APPLICATION_PAUSED and sim != null and not smoke and not benchmark and not save_locked:
 		CBSaves.write(CBSaves.SAVE_PATH, sim.state)

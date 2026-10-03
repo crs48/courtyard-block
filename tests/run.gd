@@ -39,6 +39,11 @@ func _initialize() -> void:
 	broken.packs[0].digest = "wrong"
 	check(not restored.load_state(broken).ok, "Incompatible pack rejected")
 	check(restored.state.minute == sim.state.minute, "Failed load preserves live state")
+	for mutation in [func(value: Dictionary) -> void: value.residents[0].needs = null, func(value: Dictionary) -> void: value.layout.edges.append([0, 999999]), func(value: Dictionary) -> void: value.households[0].home = "missing", func(value: Dictionary) -> void: value.packs = ["invalid"], func(value: Dictionary) -> void: value.residents = []]:
+		var malformed := snapshot.duplicate(true)
+		mutation.call(malformed)
+		check(not restored.load_state(malformed).ok, "Malformed save rejected without mutation")
+	check(restored.state.minute == sim.state.minute, "Malformed imports preserve live simulation")
 	var original: Dictionary = sim.state.duplicate(true)
 	var fork := CBSaves.fork_state(sim.state, "A second possibility")
 	fork.policies.shared_meals = true
@@ -67,11 +72,63 @@ func _initialize() -> void:
 	check(CBSaves.read("user://test_roundtrip.json").ok, "Saved file reads")
 	DirAccess.remove_absolute("user://test_roundtrip.json")
 	var empty := CBCatalog.new()
-	check(empty.register_content("furniture", {"id": "test:item"}), "Namespaced content accepted")
-	check(not empty.register_content("furniture", {"id": "test:item"}), "Duplicate ID rejected")
+	var definition := {"id": "test:item", "name": "Test table", "cost": 100, "shape": "table", "benefit": 2}
+	check(empty.register_content("furniture", definition), "Namespaced content accepted")
+	check(not empty.register_content("furniture", definition), "Duplicate ID rejected")
+	check(not empty.register_content("furniture", {"id": "test:broken"}), "Malformed furniture rejected")
 	check(not CBModLoader.safe_relative("../escape.gd"), "Archive traversal rejected")
 	check(not CBModLoader.safe_relative("/absolute.gd"), "Absolute archive path rejected")
+	_test_packs()
+	var baseline := CBSimulation.new(catalog)
+	baseline.create()
+	var alternative := CBSimulation.new(catalog)
+	alternative.load_state(CBSaves.fork_state(baseline.state, "Alternative"))
+	for tick in 8: baseline.step()
+	for tick in 4: alternative.step()
+	var comparison := CBSaves.compare(baseline.state, alternative.state)
+	check(comparison.ok and comparison.elapsed == 60 and comparison.left.minute == comparison.right.minute, "Comparison aligns unequal branch progress to common hour")
+	var before_effects := baseline.state.duplicate(true)
+	baseline._apply_effects([{"type": "spend", "amount": 100}, {"type": "need", "need": "invalid", "amount": 10}], "test")
+	check(equal_state(before_effects, baseline.state), "Invalid effect batch is atomic")
 	_finish()
+
+func _test_packs() -> void:
+	var root := "user://test_pack_fixtures"
+	var fixtures := [
+		{"id": "test_a", "name": "A", "version": "1", "api_version": 1, "dependencies": {"test_b": "1"}, "content": {}},
+		{"id": "test_b", "name": "B", "version": "1", "api_version": 1, "dependencies": {"test_a": "1"}, "content": {}},
+		{"id": "test_missing", "name": "Missing", "version": "1", "api_version": 1, "dependencies": {"absent": "1"}, "content": {}},
+		{"id": "test_bad", "name": "Bad", "version": "1", "api_version": 1, "dependencies": {}, "content": {"furniture": [{"id": "test_bad:good", "name": "Good", "cost": 1, "shape": "table", "benefit": 1}, {"id": "test_bad:bad"}]}},
+	]
+	for manifest in fixtures:
+		DirAccess.make_dir_recursive_absolute(root.path_join(manifest.id))
+		var file := FileAccess.open(root.path_join(manifest.id).path_join("manifest.json"), FileAccess.WRITE)
+		file.store_string(JSON.stringify(manifest))
+		file.close()
+	check(not CBModLoader.load_roots([root.path_join("test_a"), root.path_join("test_b")]).errors.is_empty(), "Dependency cycle rejected")
+	check(not CBModLoader.load_roots([root.path_join("test_missing")]).errors.is_empty(), "Missing dependency rejected")
+	var failed := CBModLoader.load_roots([root.path_join("test_bad")])
+	check(not failed.errors.is_empty() and failed.definitions.is_empty(), "Failed registration rolls back the whole pack")
+	var manifest := {"id": "test_runtime", "name": "Runtime pack", "version": "1", "api_version": 1, "dependencies": {}, "entry": "entry.gd", "content": {}}
+	var zip := ZIPPacker.new()
+	zip.open(root.path_join("runtime.zip"))
+	zip.start_file("manifest.json")
+	zip.write_file(JSON.stringify(manifest).to_utf8_buffer())
+	zip.close_file()
+	zip.start_file("entry.gd")
+	zip.write_file("extends RefCounted\nfunc register(catalog):\n\tcatalog.register_panel('test_runtime:panel', func(_state): return {'title': 'Loaded at runtime', 'text': 'Works'})\n".to_utf8_buffer())
+	zip.close_file()
+	zip.close()
+	check(CBModLoader.install_zip(root.path_join("runtime.zip")).ok, "External source pack installs")
+	var installed := CBModLoader.load_roots([CBModLoader.INSTALL_ROOT.path_join("test_runtime")])
+	check(installed.errors.is_empty() and installed.panels.has("test_runtime:panel"), "External GDScript loads at runtime")
+	for file in ["entry.gd", "manifest.json"]: DirAccess.remove_absolute(CBModLoader.INSTALL_ROOT.path_join("test_runtime").path_join(file))
+	DirAccess.remove_absolute(CBModLoader.INSTALL_ROOT.path_join("test_runtime"))
+	DirAccess.remove_absolute(root.path_join("runtime.zip"))
+	for fixture in fixtures:
+		DirAccess.remove_absolute(root.path_join(fixture.id).path_join("manifest.json"))
+		DirAccess.remove_absolute(root.path_join(fixture.id))
+	DirAccess.remove_absolute(root)
 
 func check(condition: bool, description: String) -> void:
 	checks += 1
