@@ -48,6 +48,7 @@ func run() -> void:
 	main.interface._responsive()
 	main._compose_camera()
 	check(main.interface.collapse_button.visible and main.camera.keep_aspect == Camera3D.KEEP_WIDTH, "Portrait mode provides a collapsible panel and fits the scene")
+	check(main.interface.floor_turn.visible, "Portrait keeps camera rotation available through a visible button")
 	main.interface.panel_collapsed = true
 	main.interface._responsive()
 	check(not main.interface.inspector.visible and main.interface.floor_bar.visible, "Hidden phone panel retains floor controls")

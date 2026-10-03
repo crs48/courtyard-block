@@ -41,6 +41,7 @@ var brand: VBoxContainer
 var collapse_button: Button
 var panel_collapsed := false
 var is_evening := false
+var floor_turn: Button
 
 func setup(model: CBSimulation) -> void:
 	sim = model
@@ -140,6 +141,7 @@ func setup(model: CBSimulation) -> void:
 	floor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_button(floors, "+", func() -> void: action.emit({"ui": "floor", "value": 1}))
 	_button(floors, "All", func() -> void: action.emit({"ui": "all_floors"}))
+	floor_turn = _button(floors, "Turn", func() -> void: action.emit({"ui": "rotate", "value": -PI / 2.0}))
 	status_label = _label(root, "Drag to explore · Scroll to zoom · Select a floor to look inside", 12, MUTED)
 	status_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	status_label.position = Vector2(30, -22)
@@ -168,6 +170,7 @@ func _responsive() -> void:
 	brand.visible = not compact
 	save_button.visible = not portrait
 	floor_bar.visible = true
+	floor_turn.visible = portrait
 	collapse_button.visible = compact
 	inspector.visible = not (compact and panel_collapsed)
 	collapse_button.text = "Show panel" if panel_collapsed else "Hide panel"
