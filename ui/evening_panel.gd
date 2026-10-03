@@ -182,7 +182,14 @@ static func workshop(ui: CBInterface) -> void:
 	name_input.max_length = 60
 	name_input.custom_minimum_size.y = 48
 	ui.body.add_child(name_input)
-	var closing := ui._number("Closes · hour (24h)", 17, 22, float(recipe.close) / 60, 0.25)
+	ui._label(ui.body, "Closes", 13, ui.MUTED)
+	var closing := OptionButton.new()
+	closing.custom_minimum_size.y = 48
+	for minute in range(CBEvening.START + 15, CBEvening.END + 1, 15):
+		closing.add_item(CBEvening.clock(minute))
+		closing.set_item_metadata(closing.item_count - 1, minute)
+	_select_time(closing, int(recipe.close))
+	ui.body.add_child(closing)
 	var places := ui._number("People / shopping parties served at once", 1, 24, recipe.slots, 1)
 	var stock := ui._number("Opening stock · portions", 1, 150, recipe.stock, 1)
 	var cost := ui._number("Price per portion · €", 0, 100, float(recipe.price) / 100, 0.5)
@@ -190,7 +197,7 @@ static func workshop(ui: CBInterface) -> void:
 		var value := recipe.duplicate(true)
 		value.id = "workshop:prototype"
 		value.name = name_input.text
-		value.close = int(closing.value * 60)
+		value.close = int(closing.get_selected_metadata())
 		value.slots = int(places.value)
 		value.stock = int(stock.value)
 		value.price = int(cost.value * 100)
@@ -211,7 +218,7 @@ static func workshop(ui: CBInterface) -> void:
 		recipe.clear()
 		recipe.merge(value)
 		name_input.text = "My " + str(value.name).to_lower()
-		closing.value = float(value.close) / 60
+		_select_time(closing, int(value.close))
 		places.value = value.slots
 		stock.value = value.stock
 		cost.value = float(value.price) / 100
@@ -232,6 +239,15 @@ static func workshop(ui: CBInterface) -> void:
 	ui._button(ui.body, "Install a trusted mod…", func() -> void: ui.action.emit({"ui": "install_mod"}))
 	ui._text("Installed packs activate after restart. Start a fresh evening for the new pack set; existing saves stay protected. Source-code packs have the game's file and network capabilities.")
 	ui._text("This editor supports groceries and meals. Novel activity types need an engine extension; unsupported fields are rejected rather than converted into happiness bonuses.")
+
+static func _select_time(control: OptionButton, minute: int) -> void:
+	for index in control.item_count:
+		if control.get_item_metadata(index) == minute:
+			control.select(index)
+			return
+	control.add_item(CBEvening.clock(minute))
+	control.set_item_metadata(control.item_count - 1, minute)
+	control.select(control.item_count - 1)
 
 static func refresh(ui: CBInterface) -> void:
 	var e: Dictionary = ui.sim.state.evening
