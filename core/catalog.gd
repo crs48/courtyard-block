@@ -16,6 +16,11 @@ func _valid_id(id: String) -> bool:
 	return id.split(":").size() == 2 and not id.get_slice(":", 1).is_empty() and CBModLoader.valid_pack_id(id.get_slice(":", 0)) and (active_pack.is_empty() or id.begins_with(active_pack + ":"))
 
 func register_content(kind: String, definition: Dictionary) -> bool:
+	if kind == "evening_services":
+		var issue := CBEvening.definition_error(definition)
+		if not issue.is_empty():
+			errors.append(issue)
+			return false
 	var id := str(definition.get("id", ""))
 	if not _valid_id(id):
 		errors.append("Content ID must be namespaced: " + id)

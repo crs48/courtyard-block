@@ -1,0 +1,30 @@
+{
+  "id": "grocery_pickup",
+  "name": "After-hours groceries",
+  "version": "1.0.0",
+  "api_version": 1,
+  "dependencies": {"base": "1.0.0"},
+  "content": {
+    "evening_services": [{
+      "id": "grocery_pickup:locker",
+      "name": "Grocery pickup lockers",
+      "description": "An opening delivery stocks chilled groceries. Collect near home, even after the grocer closes; cooking still takes time.",
+      "kind": "groceries",
+      "open": 1020,
+      "close": 1290,
+      "duration": 3,
+      "slots": 2,
+      "stock": 30,
+      "price": 350,
+      "unit_cost": 250,
+      "capital": 90000,
+      "staff": 0,
+      "water": 0,
+      "power": 0.15,
+      "sewage": 0,
+      "waste": 0.02,
+      "remote_minutes": 0,
+      "color": "#6d8da0"
+    }]
+  }
+}

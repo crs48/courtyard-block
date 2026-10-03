@@ -1,0 +1,30 @@
+{
+  "id": "evening",
+  "name": "An evening back",
+  "version": "1.0.0",
+  "api_version": 1,
+  "dependencies": {"base": "1.0.0"},
+  "content": {
+    "evening_services": [{
+      "id": "evening:kitchen",
+      "name": "Shared kitchen",
+      "description": "Dinner together, close to home. Nora prepares and staffs the kitchen; her time matters too.",
+      "kind": "meal",
+      "open": 1080,
+      "close": 1230,
+      "duration": 20,
+      "slots": 6,
+      "stock": 30,
+      "price": 450,
+      "unit_cost": 220,
+      "capital": 65000,
+      "staff": 1,
+      "water": 2,
+      "power": 0.2,
+      "sewage": 2,
+      "waste": 0.12,
+      "remote_minutes": 0,
+      "color": "#c68c58"
+    }]
+  }
+}

@@ -21,13 +21,16 @@ func _init(content: CBCatalog) -> void:
 func create(parameters: Dictionary = {}, seed: int = 2406) -> void:
 	var config: Dictionary = {"floors": 6, "width": 36.0, "courtyard": 16.0, "population": 64, "material": "base:brick", "template": "base:courtyard"}
 	config.merge(parameters, true)
+	if config.get("scenario", "") == "evening":
+		config.population = 24
+		config.household_size = 3
 	config.population = clampi(int(config.population), 1, 150)
 	var layout: Dictionary = catalog.generators[config.template].call(config)
 	state = {"schema_version": SAVE_VERSION, "name": "Our courtyard", "seed": seed, "rng": seed, "minute": 8 * 60, "parameters": config, "layout": layout, "residents": [], "households": [], "shops": [], "funds": 25000000, "policies": {"contribution": 90000, "shared_meals": false, "unlimited_funds": false}, "services": {"water": 1.0, "sewage": 1.0, "waste": 1.0, "power": 1.0}, "ledger": [], "history": [], "notices": [], "mod_state": {}, "packs": catalog.pack_lock(), "branch": {"parent": "", "origin_minute": 480}, "totals": {"water_l": 0.0, "power_kwh": 0.0, "waste_kg": 0.0}}
 	_index_spaces()
 	var homes: Array = layout.spaces.filter(func(space: Dictionary) -> bool: return space.kind == "home")
 	var population := mini(int(config.population), homes.size() * 4)
-	var household_size := maxi(2, ceili(float(population) / homes.size()))
+	var household_size := clampi(int(config.get("household_size", maxi(2, ceili(float(population) / homes.size())))), 2, 4)
 	state.parameters.population = population
 	for i in population:
 		var home: Dictionary = homes[i / household_size]
@@ -46,6 +49,7 @@ func create(parameters: Dictionary = {}, seed: int = 2406) -> void:
 	spatial.rebuild(layout)
 	_index_incomes()
 	_record_metrics()
+	if config.get("scenario", "") == "evening": CBEvening.setup(self)
 
 func _random(bound: int) -> int:
 	state.rng = (int(state.rng) * 48271) % 2147483647
@@ -76,6 +80,9 @@ func validate_save(saved: Dictionary) -> Dictionary:
 		return {"ok": false, "message": "Unsupported save version."}
 	var error := CBValidation.save_error(saved, catalog)
 	if not error.is_empty(): return _result(false, error)
+	if saved.has("evening") or saved.parameters.get("scenario", "") == "evening":
+		error = CBEvening.save_error(saved, catalog)
+		if not error.is_empty(): return _result(false, error)
 	var pack_ids: Dictionary = {}
 	for pack in saved.packs:
 		if pack_ids.has(pack.id): return _result(false, "Duplicate pack fingerprint.")
@@ -90,6 +97,10 @@ func validate_save(saved: Dictionary) -> Dictionary:
 
 func step() -> void:
 	var started := Time.get_ticks_usec()
+	if state.has("evening"):
+		CBEvening.advance(self)
+		last_step_usec = Time.get_ticks_usec() - started
+		return
 	state.minute = int(state.minute) + STEP_MINUTES
 	var occupancy: Dictionary = {}
 	for person in state.residents:
@@ -298,6 +309,9 @@ func _apply_effects(effects: Array, pack_prefix: String) -> void:
 			"notice": _notice(str(effect.get("text", "")))
 
 func command(action: Dictionary) -> Dictionary:
+	if state.has("evening"):
+		if str(action.get("type", "")).begins_with("evening_"): return CBEvening.command(self, action)
+		return _result(false, "This scenario uses the Inspect, Build, Try and Workshop tools.")
 	match action.get("type", ""):
 		"policy":
 			var key := str(action.get("key", ""))

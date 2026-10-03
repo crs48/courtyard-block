@@ -6,7 +6,7 @@ var checks := 0
 func _initialize() -> void:
 	var catalog := CBModLoader.create_catalog(false)
 	check(catalog.errors.is_empty(), "Bundled packs load: " + str(catalog.errors))
-	check(catalog.packs.size() == 4, "All four packs registered")
+	check(catalog.packs.size() == 6, "All six packs registered")
 	check(catalog.generators.has("garden_village:cluster"), "Mod generator registered")
 	check(catalog.visuals.has("garden_village:cluster"), "Mod owns its building visuals")
 	check(catalog.systems.size() == 1 and catalog.panels.size() == 1, "Behavior and panel hooks registered")
@@ -93,6 +93,7 @@ func _initialize() -> void:
 	var before_effects := baseline.state.duplicate(true)
 	baseline._apply_effects([{"type": "spend", "amount": 100}, {"type": "need", "need": "invalid", "amount": 10}], "test")
 	check(equal_state(before_effects, baseline.state), "Invalid effect batch is atomic")
+	load("res://tests/evening.gd").new().run(self, catalog)
 	_finish()
 
 func _test_packs() -> void:

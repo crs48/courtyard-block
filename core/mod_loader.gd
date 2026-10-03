@@ -1,7 +1,7 @@
 class_name CBModLoader
 extends RefCounted
 
-const BUNDLED := ["res://content/base", "res://mods/soft_spaces", "res://mods/community_kitchen", "res://mods/garden_village"]
+const BUNDLED := ["res://content/base", "res://mods/soft_spaces", "res://mods/community_kitchen", "res://mods/garden_village", "res://content/evening", "res://mods/grocery_pickup"]
 const INSTALL_ROOT := "user://mods"
 const MAX_ARCHIVE_BYTES := 64 * 1024 * 1024
 const MAX_EXPANDED_BYTES := 128 * 1024 * 1024
@@ -142,7 +142,7 @@ static func install_zip(path: String) -> Dictionary:
 	if not manifest_issue.is_empty():
 		zip.close()
 		return {"ok": false, "message": manifest_issue}
-	if id in ["base", "soft_spaces", "community_kitchen", "garden_village"] or DirAccess.dir_exists_absolute(INSTALL_ROOT.path_join(id)):
+	if id in ["base", "soft_spaces", "community_kitchen", "garden_village", "evening", "grocery_pickup"] or DirAccess.dir_exists_absolute(INSTALL_ROOT.path_join(id)):
 		zip.close()
 		return {"ok": false, "message": "Pack already exists. Remove it before installing another version."}
 	var buffers: Dictionary = {}
