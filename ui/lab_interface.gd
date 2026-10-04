@@ -54,7 +54,7 @@ func _ready() -> void:
 	for name_value in ["Design", "People", "Compare", "Workshop"]:
 		var section: String = name_value
 		tabs[section] = _button(nav, section, func() -> void: show_panel(section))
-	share = _button(root, "Export experiment ↗", func() -> void: action.emit({"type": "export"}))
+	share = _button(root, "Export experiment", func() -> void: action.emit({"type": "export"}))
 	world_tools = HBoxContainer.new()
 	world_tools.add_theme_constant_override("separation", 6)
 	root.add_child(world_tools)
@@ -65,7 +65,7 @@ func _ready() -> void:
 	world_tools.add_child(lens)
 	_button(world_tools, "−", func() -> void: action.emit({"type": "zoom", "factor": 1.1}))
 	_button(world_tools, "+", func() -> void: action.emit({"type": "zoom", "factor": 0.9}))
-	_button(world_tools, "↻", func() -> void: action.emit({"type": "rotate"}))
+	_button(world_tools, "Turn", func() -> void: action.emit({"type": "rotate"}))
 	collapse_button = _button(world_tools, "Scene", func() -> void: action.emit({"type": "collapse"}))
 	inspector = PanelContainer.new()
 	inspector.add_theme_stylebox_override("panel", _box(PAPER, 18))
@@ -112,6 +112,8 @@ func _theme() -> Theme:
 	theme.default_font_size = 14
 	for control in ["Label", "Button", "CheckButton", "OptionButton", "LineEdit", "SpinBox", "TextEdit"]: theme.set_color("font_color", control, INK)
 	for control in ["Button", "OptionButton"]:
+		theme.set_color("font_hover_color", control, INK)
+		theme.set_color("font_pressed_color", control, INK)
 		theme.set_stylebox("normal", control, _box(Color("#eeeddf"), 10))
 		theme.set_stylebox("hover", control, _box(Color("#e0e5d5"), 10))
 		theme.set_stylebox("pressed", control, _box(Color("#d5decb"), 10))
@@ -353,6 +355,8 @@ func _people() -> void:
 	_label(body, home.name + " · 3 residents", 19)
 	_text("Owner: " + _owner_name(z.owner) + "\nWall: " + e.catalog.definition("assemblies", z.assembly).name)
 	dynamic.person = _text("", INK)
+	_label(body, "THE SHARED SYSTEMS", 11, GREEN)
+	dynamic.systems = _text("", INK)
 	_text("Occupied hours below 18°C and above 28°C use this scenario's comfort bands. Household routines and incomes are fixed assumptions, not a demographic forecast.")
 	if e.phase == "design":
 		_select("Try a wall just for this home", "assemblies", z.assembly, func(id: String) -> void:
@@ -517,6 +521,8 @@ func refresh() -> void:
 		var original: Dictionary = e.reference.state.homes[game.selected]
 		var z: Dictionary = e.sim.zones[game.selected]
 		dynamic.person.text = "Inside now · %.1f°C\nOccupied cold hours · %s (reference %s)\nOccupied hot hours · %s\nBills so far · %s\nUnpaid · %s\nDeclared support load · %.0f%%" % [home.air_c, grouped(home.cold_hours), grouped(original.cold_hours), grouped(home.hot_hours), euros(home.billed_cents), euros(home.arrears_cents), z.mass_kg / z.support_kg * 100]
+		var plant_status := "waiting for repair funds" if s.awaiting_repair else ("under maintenance" if s.hour < s.repair_until else "available")
+		dynamic.systems.text = "Operating reserve · %s\nHeating / cooling · %s\nPotable storage · %.0f / %.0f L\nWastewater backlog · %.0f / 1,000 L\nBins · %.0f / %.0f kg\nStreet litter · %.0f kg\nBattery · %.1f / %.0f kWh\nOwner's remaining capital · %s" % [euros(s.utility_cents), plant_status, s.water_l, e.design.tank_l, s.sewage_l, s.waste_kg, e.design.waste_kg, s.litter_kg, s.battery_kwh, e.design.battery_kwh, euros(s.owners[z.owner])]
 		dynamic.advice.text = "Cold hours depend on the envelope, weather, available heating and outages. Try changing just this home's wall, then compare."
 		if home.arrears_cents > 0: dynamic.advice.text += "\n\nThis household could not pay all its bills. Its remaining monthly income is limited; compare envelope efficiency and billing policies rather than treating shared funds as household affordability."
 		var events := ""

@@ -60,6 +60,12 @@ static func zip_error(bytes: PackedByteArray, member: String) -> String:
 	if ((bytes.decode_u32(central + 38) >> 16) & 0xF000) == 0xA000: return "Symbolic links are not allowed."
 	var local := int(bytes.decode_u32(central + 42))
 	if local != 0 or bytes.decode_u32(0) != 0x04034b50: return "Invalid local ZIP header."
+	if bytes.decode_u16(6) != flags or bytes.decode_u16(8) != bytes.decode_u16(central + 10): return "ZIP compression headers disagree."
+	if bytes.decode_u16(central + 34) != 0: return "Multi-disk ZIPs are not supported."
+	for offsets in [[14, 16], [18, 20], [22, 24]]:
+		var local_value := bytes.decode_u32(offsets[0])
+		var central_value := bytes.decode_u32(central + offsets[1])
+		if local_value != central_value and not (flags & 8 and local_value == 0): return "ZIP sizes or checksums disagree."
 	var local_name := int(bytes.decode_u16(26))
 	var local_extra := int(bytes.decode_u16(28))
 	if 30 + local_name + local_extra > central or bytes.slice(30, 30 + local_name).get_string_from_utf8() != member: return "ZIP member names disagree."

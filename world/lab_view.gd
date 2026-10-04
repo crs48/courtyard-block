@@ -59,8 +59,8 @@ func draw_lab(model: CBLab) -> void:
 		var entry := Vector3(p.x, 0.12, p.z + d / 2 + 1.2)
 		_box(Vector3(p.x / 2, 0.1, entry.z), Vector3(absf(p.x) + 1, 0.08, 1.5), "#c6bfa6", -1)
 		var caption := Label3D.new()
-		caption.font_size = 36
-		caption.pixel_size = 0.018
+		caption.font_size = 40
+		caption.pixel_size = 0.028
 		caption.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		caption.no_depth_test = true
 		caption.outline_size = 8

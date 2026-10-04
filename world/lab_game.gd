@@ -118,6 +118,7 @@ func _process(delta: float) -> void:
 	refresh_elapsed += delta
 	save_elapsed += delta
 	if experiment.phase != old_phase or (old_restore > 0 and experiment.restore_hour == 0):
+		view.refresh()
 		ui.show_panel("Compare")
 		if experiment.phase == "complete":
 			ui.toast("Both designs reached the same date. Inspect the households, then try another idea.")
@@ -153,11 +154,15 @@ func command(action: Dictionary) -> void:
 			if result.ok:
 				_redraw()
 				ui.show_panel("Design")
-		"baseline": result = experiment.pin_baseline()
+		"baseline":
+			result = experiment.pin_baseline()
+			if result.ok: _redraw()
 		"run":
 			result = experiment.start(int(action.hours))
 			if result.ok:
+				view.draw_lab(experiment.sim)
 				view.lens = "temperature"
+				view.refresh()
 				ui.show_panel("Compare")
 		"pause": experiment.pause()
 		"select":
