@@ -1,6 +1,6 @@
 # An evening back
 
-The default game is now a playable food-access experiment for 24 residents in eight households. It runs from 16:00 to 22:00, starting paused. The original sandbox remains available with `godot --path . -- --foundation` and retains its four bundled packs and separate save file.
+The evening scenario is a playable food-access experiment for 24 residents in eight households. Open it with `godot --path . -- --evening` or from the annual lab’s Workshop. The [annual lab](lab.md) is now the default game. It runs from 16:00 to 22:00, starting paused. The original sandbox remains available with `godot --path . -- --foundation` and retains its four bundled packs and separate save file.
 
 ## Play the loop
 

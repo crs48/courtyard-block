@@ -1,8 +1,10 @@
 # Modding API v1
 
-The default evening scenario adds validated `evening_services` data. See [the evening guide](evening.md#service-packs-and-the-workshop), `content/evening/manifest.json` and `mods/grocery_pickup/manifest.json`. The latter supplies a working grocery service without an entry script or host-specific callback. Workshop can remix definitions, validate pasted JSON, and export a reusable pack or a drafting prompt for an external AI. New activity types still require engine work; this is not the exploration's full API v2.
+For the default annual community lab, use the [API v2 data-mod guide](lab.md#create-a-mod) and [schema](../schemas/lab-pack.schema.json). This page documents the separate **legacy API v1** used by the original sandbox and evening scenario. API v2 packs contain no scripts and are loaded per experiment; the two formats are not interchangeable.
 
-The original sandbox can be opened with `--foundation`; it loads the original four bundled packs. The default evening adds the two service packs. The following general v1 APIs remain available.
+The evening scenario adds validated `evening_services` data. See [the evening guide](evening.md#service-packs-and-the-workshop), `content/evening/manifest.json` and `mods/grocery_pickup/manifest.json`. The latter supplies a working grocery service without an entry script or host-specific callback. Workshop can remix definitions, validate pasted JSON, and export a reusable pack or a drafting prompt for an external AI. New activity types still require engine work; this is not the exploration's full API v2.
+
+The original sandbox can be opened with `--foundation`; it loads the original four bundled packs. The evening scenario adds the two service packs. The following general v1 APIs remain available.
 
 The bundled game uses the same registry as installed packs. Examples:
 

@@ -470,14 +470,14 @@ Keep the simulation calculation declarative: **read state → propose changes �
 
 ### Implementation checklist
 
-These items are deliberately unchecked: this exploration does not implement them.
+An initial annual slice was implemented on October 4, 2026; see the [implemented features, API, limits and verified checklist](../lab.md). The broader contract/generalization items below remain open unless fully satisfied. In particular, the current annual model is separate from the evening activity engine, its inputs are illustrative, and it has no general port editor or multi-year demography.
 
 **Stage 1 — Define and prove the contracts**
 
 - [ ] Specify API v2 quantities, stable IDs, components, ports, model ownership, errors and evidence records; generate forms/docs from schemas.
 - [ ] Define exact model/engine/data identity and a complete file-hash lock independent of global installation state.
 - [ ] Add per-experiment loading, staging, bounded data import and side-by-side pack versions.
-- [ ] Keep v1 saves on the v1 model path; provide explicit compatibility or conversion with original snapshots retained.
+- [x] Keep v1 saves on the v1 model path; retain them separately with explicit mode selection and reject incompatible imports. No automatic conversion is performed.
 - [ ] Port a base service, one assembly and a fee rule through public contracts; verify an independent pack can compose them.
 
 **Stage 2 — Generalize the world and accounting**
@@ -560,7 +560,7 @@ Each stage should end with a playable contribution from someone who did not writ
 - [ ] Verify data mode cannot load scripts, native binaries, arbitrary shaders or network resources; test all asset import paths.
 - [ ] Measure compile time, first placement, rebuild, solver work, repeated-run throughput and peak memory, not only frame rate.
 - [ ] Establish budgets on a named low-end desktop and physical mobile devices; record browser/native differences and thermal behavior.
-- [ ] Re-run `godot --headless --path . --script tests/run.gd` after simulation/API work, plus scene checks and the new module/experiment suites.
+- [x] Re-run `godot --headless --path . --script tests/run.gd` after simulation/API work, plus evening and annual lab scene checks.
 
 ## Example code and data
 

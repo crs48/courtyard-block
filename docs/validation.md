@@ -1,8 +1,37 @@
 # Builds and validation
 
+## Annual community lab — October 4, 2026
+
+The default entry point is **Warm homes, shared systems**. The earlier evening game is available with `--evening`, and the foundation with `--foundation`; their save files and model paths are preserved. See the [lab guide](lab.md) for the data contract and numerical boundaries.
+
+| Check | Observed result |
+| --- | --- |
+| Simulation and mod API | 765 checks passed, including annual stock/energy/cash reconciliation, analytical thermal fixtures, capacity failures, supported loads, schema/dependency rejection, full weather CSVs, archive bounds and exact replay |
+| Evening scene regression | 14 checks passed |
+| Annual scene/controller | 56 checks passed: form-created mod, layout/undo, pause/continue, matched year, import/replay, rejected import preservation, rendered temperature binding, and all five panels at 390×844, 844×390 and 1440×900 |
+| Native rendered lab | Desktop and portrait annual smoke runs completed and inspected; rendering uses the active run rather than the original draft |
+| Browser | WebGL 2 load, wall selection, complete annual comparison, ZIP download and file-chooser reimport completed; no console errors or warnings observed; portrait comparison inspected |
+| Portable file exchange | The browser download was found in Downloads and replayed by the native headless runner. Its two reports matched the native reference run. The browser then imported that ZIP and returned to the same displayed annual results |
+| CLI and packaging | Full-year JSON output and experiment ZIP round trip reproduced both reports; v1 and v2 packaging passed; v2 archive validated with the host compiler |
+| Exports | Updated Web, macOS and Android development builds completed without script/export errors |
+
+Local simulation timing on this Apple M1 Max: one 24-person year took **900 ms** in the headless test; two matched years through the CLI took **1,755 ms**, excluding startup/compilation and output serialization. These are individual local observations, not low-end hardware or sustained-phone benchmarks. The UI uses a bounded work budget between frames.
+
+The default continental example produced 42,783 occupied cold person-hours for light timber and 4,551 for insulated timber. Insulation increased construction from €471,141 to €499,639. These values demonstrate the declared synthetic model and are regression evidence, **not predictions about real buildings**. Utility funding shortages contribute to year-end failures; the household inspector exposes the shared reserve, maintenance state and storage levels.
+
+The browser's automated download event observer timed out, but the actual archive was saved and successfully replayed. Native and browser float bit identity is not generally guaranteed; this one exported case and its displayed outcomes matched. Physical Android/iOS devices, Safari, accessibility/screen-reader coverage, native mobile file pickers, long thermal-soak tests and empirical calibration remain unverified. Prior iOS runtime limitations below still apply. No marketplace, arbitrary asset/code loading, general model modules or century simulation is implied by this slice.
+
+```sh
+python3 scripts/check.py
+godot --headless --path . --script scripts/run_lab.gd -- --assembly=core:warm_wall --hours=8760
+godot --path . -- --lab-smoke --screenshot=artifacts/lab-desktop.png
+godot --path . --resolution 390x844 -- --lab-smoke --screenshot=artifacts/lab-phone.png
+# Browser QA without modifying saves: http://localhost:8060/?lab-test
+```
+
 ## Evening playable validation — October 2, 2026
 
-The default entry point now runs **An evening back**. The original sandbox and its measured rendering baseline remain available with `--foundation` (the existing `--smoke` / `--benchmark` flags still select that model).
+At that milestone the default entry point ran **An evening back**; it is now selected with `--evening`. The original sandbox and its measured rendering baseline remain available with `--foundation` (the existing `--smoke` / `--benchmark` flags still select that model).
 
 | Check | Result |
 | --- | --- |
