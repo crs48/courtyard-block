@@ -423,6 +423,7 @@ func _experiments() -> void:
 	_text("A grounded game model, not a prediction. Housing and water benchmarks are documented; behavior and balancing assumptions are adjustable.")
 
 func _mods() -> void:
+	_button(body, "Open the annual community lab", func() -> void: action.emit({"ui": "lab"}))
 	_eyebrow("MADE TO BE MADE YOURS")
 	_heading("A world of additions")
 	_text("Add small comforts or entirely different ways of living. Installed code packs activate after restarting.")

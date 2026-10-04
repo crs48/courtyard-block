@@ -172,6 +172,7 @@ func money() -> int:
 	return total
 
 static func date_label(hour: int) -> String:
+	if hour >= YEAR_HOURS: return "Year 1 complete"
 	var day := clampi(hour / 24, 0, 364)
 	var month := 0
 	while day >= MONTH_DAYS[month]:

@@ -1,5 +1,8 @@
 extends Node3D
 
+static var requested_mode := ""
+var lab_game: CBLabGame
+
 var catalog: CBCatalog
 var sim: CBSimulation
 var diorama: CBDiorama
@@ -37,6 +40,15 @@ var foundation := false
 var last_portrait := false
 
 func _ready() -> void:
+	var legacy := false
+	for argument in OS.get_cmdline_user_args():
+		if argument in ["--evening", "--foundation", "--smoke", "--evening-smoke", "--benchmark"]: legacy = true
+	if requested_mode == "lab" or (requested_mode.is_empty() and not legacy):
+		set_process(false)
+		set_process_unhandled_input(false)
+		lab_game = CBLabGame.new()
+		add_child(lab_game)
+		return
 	get_window().content_scale_size = Vector2i.ZERO
 	_configure_scale()
 	get_window().size_changed.connect(_configure_scale)
@@ -48,6 +60,8 @@ func _ready() -> void:
 		if argument == "--smoke": smoke = true
 		if argument == "--benchmark": benchmark = true
 		if argument.begins_with("--screenshot="): screenshot_path = argument.trim_prefix("--screenshot=")
+	if requested_mode == "foundation": foundation = true
+	if requested_mode == "evening": foundation = false
 	var with_evening := not foundation and not benchmark and (not smoke or evening_smoke)
 	catalog = CBModLoader.create_catalog(not smoke, with_evening)
 	if not catalog.errors.is_empty():
@@ -108,6 +122,10 @@ func _ready() -> void:
 		paused = true
 		interface.speed_button.text = "Play"
 	if benchmark: speed = 20
+
+func open_mode(mode: String) -> void:
+	requested_mode = mode
+	get_tree().call_deferred("reload_current_scene")
 
 func _configure_scale() -> void:
 	var scale_value := 1.0
@@ -275,6 +293,9 @@ func _on_action(command: Dictionary) -> void:
 		interface.refresh()
 		return
 	match command.get("ui", ""):
+		"lab":
+			if not smoke and not benchmark and not save_locked: CBSaves.write(_save_path(), sim.state)
+			open_mode("lab")
 		"pause":
 			if sim.state.has("evening"):
 				if sim.state.evening.phase == "design":
@@ -609,6 +630,7 @@ func _select_at(screen: Vector2) -> void:
 			return
 
 func _notification(what: int) -> void:
+	if lab_game != null: return
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if sim != null and not smoke and not benchmark and not save_locked: CBSaves.write(_save_path(), sim.state)
 		get_tree().quit()

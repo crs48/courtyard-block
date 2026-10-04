@@ -159,6 +159,7 @@ static func experiments(ui: CBInterface) -> void:
 	ui._text("Starting fresh keeps the previous saved evening as a timestamped backup.")
 
 static func workshop(ui: CBInterface) -> void:
+	ui._button(ui.body, "Open the annual community lab", func() -> void: ui.action.emit({"ui": "lab"}))
 	var e: Dictionary = ui.sim.state.evening
 	ui._eyebrow("04  INVENT A POSSIBILITY")
 	ui._heading("Your little workshop")
