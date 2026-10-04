@@ -38,5 +38,10 @@ export async function renderDoc(doc: Doc) {
     remarkPlugins: [rewriteLinks],
     shikiConfig: { theme: 'github-light', wrap: false },
   });
-  return processor.render(markdown);
+  const rendered = await processor.render(markdown);
+  return {
+    ...rendered,
+    // Diagram syntax is useful as a fallback, but prose makes better search excerpts.
+    code: rendered.code.replace(/<pre(?=[^>]*data-language="mermaid")/g, '<pre data-pagefind-ignore'),
+  };
 }
