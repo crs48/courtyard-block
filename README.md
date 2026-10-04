@@ -60,4 +60,6 @@ The simulation has no scene nodes. Layouts describe navigation graphs and spaces
 
 See [the evening scenario](docs/evening.md), [modding](docs/modding.md), [foundation model assumptions](docs/model.md), [platform builds and validation](docs/validation.md), and the [foundation checklist](docs/plans/godot-foundation/README.md).
 
+For the proposed direction beyond the current prototype, read [moddable community experiments grounded in physics and evidence](docs/explorations/0001_[_]_MODDABLE_COMMUNITY_EXPERIMENTS_GROUNDED_IN_PHYSICS_AND_EVIDENCE.md): composable construction and institutions, sourced parameters, reproducible sharing, and year-to-century simulation limits.
+
 This is a first playable foundation: procedural art, a deliberately small economic model, single-player and trusted local mods. It is not a validated predictor of housing outcomes. Multiplayer, freeform architectural editing, production art/audio, a marketplace, app-store submission and a general custom-mesh importer remain future work.
