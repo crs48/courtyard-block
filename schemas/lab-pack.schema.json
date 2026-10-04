@@ -1,0 +1,798 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:courtyard:block:lab-pack:2",
+  "type": "object",
+  "properties": {
+    "api_version": {
+      "const": 2
+    },
+    "model": {
+      "const": "warm-homes-1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 48
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30
+      }
+    },
+    "content": {
+      "type": "object",
+      "properties": {
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/materials"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "assemblies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assemblies"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "homes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/homes"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "layouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/layouts"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "climates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/climates"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "plants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/plants"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/policies"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "api_version",
+    "model",
+    "id",
+    "name",
+    "version",
+    "dependencies",
+    "content"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "synthetic",
+            "estimated",
+            "measured",
+            "derived"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "geography": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "period": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "status",
+        "source",
+        "notes",
+        "license",
+        "geography",
+        "period"
+      ],
+      "additionalProperties": false
+    },
+    "materials": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "conductivity_w_mk": {
+          "type": "number",
+          "minimum": 0.015,
+          "maximum": 5,
+          "description": "W/(m\u00b7K)"
+        },
+        "density_kg_m3": {
+          "type": "number",
+          "minimum": 5,
+          "maximum": 3000,
+          "description": "kg/m\u00b3"
+        },
+        "heat_capacity_j_kgk": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 3000,
+          "description": "J/(kg\u00b7K)"
+        },
+        "price_cents_m3": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 500000,
+          "description": "cents/m\u00b3"
+        },
+        "carbon_kg_m3": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3000,
+          "description": "kg CO\u2082e/m\u00b3"
+        },
+        "color": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 9
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "conductivity_w_mk",
+        "density_kg_m3",
+        "heat_capacity_j_kgk",
+        "price_cents_m3",
+        "carbon_kg_m3",
+        "color",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "assemblies": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "material": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "thickness_m": {
+                "type": "number",
+                "minimum": 0.005,
+                "maximum": 1,
+                "description": "m"
+              }
+            },
+            "required": [
+              "material",
+              "thickness_m"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 8
+        },
+        "labor_cents_m2": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000,
+          "description": "cents/m\u00b2"
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "layers",
+        "labor_cents_m2",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "homes": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "floor_m2": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 120,
+          "description": "m\u00b2"
+        },
+        "width_m": {
+          "type": "number",
+          "minimum": 4,
+          "maximum": 12,
+          "description": "m"
+        },
+        "height_m": {
+          "type": "number",
+          "minimum": 2,
+          "maximum": 4,
+          "description": "m"
+        },
+        "glazing_m2": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 30,
+          "description": "m\u00b2"
+        },
+        "window_u": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 6,
+          "description": "W/(m\u00b2\u00b7K)"
+        },
+        "roof_u": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 2,
+          "description": "W/(m\u00b2\u00b7K)"
+        },
+        "floor_u": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 2,
+          "description": "W/(m\u00b2\u00b7K)"
+        },
+        "infiltration_ach": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 3,
+          "description": "air changes/h"
+        },
+        "solar_gain": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "internal_mass_j_m2k": {
+          "type": "number",
+          "minimum": 10000,
+          "maximum": 200000,
+          "description": "J/(m\u00b2\u00b7K)"
+        },
+        "base_mass_kg_m2": {
+          "type": "number",
+          "minimum": 30,
+          "maximum": 500,
+          "description": "kg/m\u00b2"
+        },
+        "base_cost_cents": {
+          "type": "integer",
+          "minimum": 100000,
+          "maximum": 20000000,
+          "description": "cents"
+        },
+        "water_l_person_day": {
+          "type": "number",
+          "minimum": 10,
+          "maximum": 300,
+          "description": "L/person/day"
+        },
+        "power_kwh_person_day": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 8,
+          "description": "kWh/person/day"
+        },
+        "waste_kg_person_day": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 2,
+          "description": "kg/person/day"
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "floor_m2",
+        "width_m",
+        "height_m",
+        "glazing_m2",
+        "window_u",
+        "roof_u",
+        "floor_u",
+        "infiltration_ach",
+        "solar_gain",
+        "internal_mass_j_m2k",
+        "base_mass_kg_m2",
+        "base_cost_cents",
+        "water_l_person_day",
+        "power_kwh_person_day",
+        "waste_kg_person_day",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "layouts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "placements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "position": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": -60,
+                  "maximum": 60
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rotation": {
+                "type": "string",
+                "enum": [
+                  "0",
+                  "90",
+                  "180",
+                  "270"
+                ]
+              },
+              "owner": {
+                "type": "string",
+                "enum": [
+                  "west",
+                  "east",
+                  "commons"
+                ]
+              },
+              "support": {
+                "type": "string",
+                "enum": [
+                  "ground",
+                  "anchors"
+                ]
+              },
+              "support_capacity_kg": {
+                "type": "number",
+                "minimum": 1000,
+                "maximum": 1000000,
+                "description": "kg"
+              }
+            },
+            "required": [
+              "id",
+              "position",
+              "rotation",
+              "owner",
+              "support",
+              "support_capacity_kg"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 3,
+          "maxItems": 12
+        },
+        "party_walls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "area_m2": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 50,
+                "description": "m\u00b2"
+              }
+            },
+            "required": [
+              "a",
+              "b",
+              "area_m2"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 30
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "placements",
+        "party_walls",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "climates": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "mean_c": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 25,
+          "description": "\u00b0C"
+        },
+        "seasonal_c": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 25,
+          "description": "K"
+        },
+        "diurnal_c": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "K"
+        },
+        "rain_mm_day": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "mm/day"
+        },
+        "cold_snap_day": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 364,
+          "description": "day"
+        },
+        "cold_snap_drop_c": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 25,
+          "description": "K"
+        },
+        "outage_day": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 364,
+          "description": "day"
+        },
+        "outage_hours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 72,
+          "description": "hours"
+        },
+        "hourly": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": -100,
+              "maximum": 1500
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "minItems": 8760,
+          "maxItems": 8760
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "mean_c",
+        "seasonal_c",
+        "diurnal_c",
+        "rain_mm_day",
+        "cold_snap_day",
+        "cold_snap_drop_c",
+        "outage_day",
+        "outage_hours",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "plants": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "heat_kw": {
+          "type": "number",
+          "minimum": 3,
+          "maximum": 80,
+          "description": "kW"
+        },
+        "cop": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "cold_cop": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "cool_kw": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 50,
+          "description": "kW"
+        },
+        "cool_cop": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "capital_cents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000000,
+          "description": "cents"
+        },
+        "maintenance_days": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 365,
+          "description": "days"
+        },
+        "maintenance_cents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200000,
+          "description": "cents"
+        },
+        "repair_hours": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 72,
+          "description": "hours"
+        },
+        "labor_hours": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 40,
+          "description": "hours"
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "heat_kw",
+        "cop",
+        "cold_cop",
+        "cool_kw",
+        "cool_cop",
+        "capital_cents",
+        "maintenance_days",
+        "maintenance_cents",
+        "repair_hours",
+        "labor_hours",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "policies": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "billing": {
+          "type": "string",
+          "enum": [
+            "metered",
+            "equal"
+          ]
+        },
+        "allocation": {
+          "type": "string",
+          "enum": [
+            "proportional",
+            "equal"
+          ]
+        },
+        "reserve_cents_month": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15000,
+          "description": "cents/household/month"
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "billing",
+        "allocation",
+        "reserve_cents_month",
+        "evidence"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

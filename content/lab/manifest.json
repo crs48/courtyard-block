@@ -1,0 +1,547 @@
+{
+  "api_version": 2,
+  "model": "warm-homes-1",
+  "id": "core",
+  "name": "Warm homes reference kit",
+  "version": "1.0.0",
+  "dependencies": {},
+  "content": {
+    "evidence": [
+      {
+        "id": "core:assumptions",
+        "name": "Illustrative lab assumptions",
+        "status": "synthetic",
+        "source": "",
+        "notes": "Teaching and gameplay inputs, not calibrated measurements. Weather is generated. Costs exclude land, financing and permits. Thermal and resource balances are modeled; structural capacities are declared checks only.",
+        "license": "CC0-1.0",
+        "geography": "Fictional communities",
+        "period": "A synthetic 365-day year"
+      }
+    ],
+    "materials": [
+      {
+        "id": "core:timber",
+        "name": "Timber panel",
+        "conductivity_w_mk": 0.13,
+        "density_kg_m3": 500,
+        "heat_capacity_j_kgk": 1600,
+        "price_cents_m3": 90000,
+        "carbon_kg_m3": 180,
+        "color": "#c89869",
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:insulation",
+        "name": "Fiber insulation",
+        "conductivity_w_mk": 0.04,
+        "density_kg_m3": 45,
+        "heat_capacity_j_kgk": 1400,
+        "price_cents_m3": 16000,
+        "carbon_kg_m3": 40,
+        "color": "#d3c18e",
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:earth",
+        "name": "Earth mix",
+        "conductivity_w_mk": 1.2,
+        "density_kg_m3": 1900,
+        "heat_capacity_j_kgk": 900,
+        "price_cents_m3": 14000,
+        "carbon_kg_m3": 80,
+        "color": "#be8c6a",
+        "evidence": "core:assumptions"
+      }
+    ],
+    "assemblies": [
+      {
+        "id": "core:light_wall",
+        "name": "Light timber wall",
+        "layers": [
+          {
+            "material": "core:timber",
+            "thickness_m": 0.06
+          }
+        ],
+        "labor_cents_m2": 4000,
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:warm_wall",
+        "name": "Insulated timber wall",
+        "layers": [
+          {
+            "material": "core:timber",
+            "thickness_m": 0.03
+          },
+          {
+            "material": "core:insulation",
+            "thickness_m": 0.16
+          },
+          {
+            "material": "core:timber",
+            "thickness_m": 0.03
+          }
+        ],
+        "labor_cents_m2": 6500,
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:earth_wall",
+        "name": "Insulated earth wall",
+        "layers": [
+          {
+            "material": "core:earth",
+            "thickness_m": 0.3
+          },
+          {
+            "material": "core:insulation",
+            "thickness_m": 0.12
+          }
+        ],
+        "labor_cents_m2": 9000,
+        "evidence": "core:assumptions"
+      }
+    ],
+    "homes": [
+      {
+        "id": "core:home",
+        "name": "48 m\u00b2 home",
+        "floor_m2": 48,
+        "width_m": 6,
+        "height_m": 2.8,
+        "glazing_m2": 8,
+        "window_u": 2.4,
+        "roof_u": 0.3,
+        "floor_u": 0.4,
+        "infiltration_ach": 0.6,
+        "solar_gain": 0.55,
+        "internal_mass_j_m2k": 60000,
+        "base_mass_kg_m2": 150,
+        "base_cost_cents": 5000000,
+        "water_l_person_day": 90,
+        "power_kwh_person_day": 2.5,
+        "waste_kg_person_day": 0.65,
+        "evidence": "core:assumptions"
+      }
+    ],
+    "layouts": [
+      {
+        "id": "core:courtyard",
+        "name": "Courtyard block",
+        "placements": [
+          {
+            "id": "home_01",
+            "position": [
+              -9,
+              0,
+              -8
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_02",
+            "position": [
+              -9,
+              0,
+              0
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_03",
+            "position": [
+              -9,
+              0,
+              8
+            ],
+            "rotation": "0",
+            "owner": "commons",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_04",
+            "position": [
+              9,
+              0,
+              -8
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_05",
+            "position": [
+              9,
+              0,
+              0
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_06",
+            "position": [
+              9,
+              0,
+              8
+            ],
+            "rotation": "0",
+            "owner": "commons",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_07",
+            "position": [
+              -3,
+              0,
+              -16
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_08",
+            "position": [
+              3,
+              0,
+              -16
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          }
+        ],
+        "party_walls": [
+          {
+            "a": "home_01",
+            "b": "home_02",
+            "area_m2": 16.8
+          },
+          {
+            "a": "home_02",
+            "b": "home_03",
+            "area_m2": 16.8
+          },
+          {
+            "a": "home_04",
+            "b": "home_05",
+            "area_m2": 16.8
+          },
+          {
+            "a": "home_05",
+            "b": "home_06",
+            "area_m2": 16.8
+          },
+          {
+            "a": "home_07",
+            "b": "home_08",
+            "area_m2": 16.8
+          }
+        ],
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:cluster",
+        "name": "Detached cluster",
+        "placements": [
+          {
+            "id": "home_01",
+            "position": [
+              -18,
+              0,
+              -10
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_02",
+            "position": [
+              -6,
+              0,
+              -10
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_03",
+            "position": [
+              6,
+              0,
+              -10
+            ],
+            "rotation": "0",
+            "owner": "commons",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_04",
+            "position": [
+              18,
+              0,
+              -10
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_05",
+            "position": [
+              -18,
+              0,
+              10
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_06",
+            "position": [
+              -6,
+              0,
+              10
+            ],
+            "rotation": "0",
+            "owner": "commons",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_07",
+            "position": [
+              6,
+              0,
+              10
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          },
+          {
+            "id": "home_08",
+            "position": [
+              18,
+              0,
+              10
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "ground",
+            "support_capacity_kg": 300000
+          }
+        ],
+        "party_walls": [],
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:canopy",
+        "name": "Elevated cabins",
+        "placements": [
+          {
+            "id": "home_01",
+            "position": [
+              -18,
+              4,
+              -11
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          },
+          {
+            "id": "home_02",
+            "position": [
+              -6,
+              4,
+              -11
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          },
+          {
+            "id": "home_03",
+            "position": [
+              6,
+              4,
+              -11
+            ],
+            "rotation": "0",
+            "owner": "commons",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          },
+          {
+            "id": "home_04",
+            "position": [
+              18,
+              4,
+              -11
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          },
+          {
+            "id": "home_05",
+            "position": [
+              -18,
+              4,
+              11
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          },
+          {
+            "id": "home_06",
+            "position": [
+              -6,
+              4,
+              11
+            ],
+            "rotation": "0",
+            "owner": "commons",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          },
+          {
+            "id": "home_07",
+            "position": [
+              6,
+              4,
+              11
+            ],
+            "rotation": "0",
+            "owner": "west",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          },
+          {
+            "id": "home_08",
+            "position": [
+              18,
+              4,
+              11
+            ],
+            "rotation": "0",
+            "owner": "east",
+            "support": "anchors",
+            "support_capacity_kg": 45000
+          }
+        ],
+        "party_walls": [],
+        "evidence": "core:assumptions"
+      }
+    ],
+    "climates": [
+      {
+        "id": "core:coastal",
+        "name": "Mild coastal year",
+        "mean_c": 12,
+        "seasonal_c": 9,
+        "diurnal_c": 3,
+        "rain_mm_day": 2.5,
+        "cold_snap_day": 30,
+        "cold_snap_drop_c": 8,
+        "outage_day": 32,
+        "outage_hours": 12,
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:continental",
+        "name": "Cold continental year",
+        "mean_c": 8,
+        "seasonal_c": 15,
+        "diurnal_c": 5,
+        "rain_mm_day": 1.5,
+        "cold_snap_day": 30,
+        "cold_snap_drop_c": 12,
+        "outage_day": 32,
+        "outage_hours": 18,
+        "evidence": "core:assumptions"
+      }
+    ],
+    "plants": [
+      {
+        "id": "core:heat_pump",
+        "name": "Shared heat pump",
+        "heat_kw": 24,
+        "cop": 3.4,
+        "cold_cop": 1.8,
+        "cool_kw": 16,
+        "cool_cop": 3,
+        "capital_cents": 900000,
+        "maintenance_days": 90,
+        "maintenance_cents": 18000,
+        "repair_hours": 8,
+        "labor_hours": 4,
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:resistance",
+        "name": "Electric resistance heating",
+        "heat_kw": 36,
+        "cop": 1,
+        "cold_cop": 1,
+        "cool_kw": 0,
+        "cool_cop": 1,
+        "capital_cents": 300000,
+        "maintenance_days": 180,
+        "maintenance_cents": 8000,
+        "repair_hours": 4,
+        "labor_hours": 2,
+        "evidence": "core:assumptions"
+      }
+    ],
+    "policies": [
+      {
+        "id": "core:metered",
+        "name": "Pay for metered use",
+        "billing": "metered",
+        "allocation": "proportional",
+        "reserve_cents_month": 2000,
+        "evidence": "core:assumptions"
+      },
+      {
+        "id": "core:equal",
+        "name": "Share costs equally",
+        "billing": "equal",
+        "allocation": "equal",
+        "reserve_cents_month": 2000,
+        "evidence": "core:assumptions"
+      }
+    ]
+  }
+}

@@ -94,6 +94,7 @@ func _initialize() -> void:
 	baseline._apply_effects([{"type": "spend", "amount": 100}, {"type": "need", "need": "invalid", "amount": 10}], "test")
 	check(equal_state(before_effects, baseline.state), "Invalid effect batch is atomic")
 	load("res://tests/evening.gd").new().run(self, catalog)
+	load("res://tests/lab.gd").new().run(self)
 	_finish()
 
 func _test_packs() -> void:

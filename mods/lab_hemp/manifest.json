@@ -1,0 +1,55 @@
+{
+  "api_version": 2,
+  "model": "warm-homes-1",
+  "id": "hemp_lab",
+  "name": "Hemp wall experiment",
+  "version": "1.0.0",
+  "dependencies": {
+    "core": "1.0.0"
+  },
+  "content": {
+    "evidence": [
+      {
+        "id": "hemp_lab:assumption",
+        "name": "Illustrative hemp mix",
+        "status": "estimated",
+        "source": "",
+        "notes": "Hypothetical mix for demonstrating independent material packs. Supply measured properties for a real product before using results as evidence.",
+        "license": "CC0-1.0",
+        "geography": "Unspecified",
+        "period": "Unspecified"
+      }
+    ],
+    "materials": [
+      {
+        "id": "hemp_lab:mix",
+        "name": "Hemp mixture (illustrative)",
+        "conductivity_w_mk": 0.1,
+        "density_kg_m3": 300,
+        "heat_capacity_j_kgk": 1500,
+        "price_cents_m3": 25000,
+        "carbon_kg_m3": 90,
+        "color": "#a7af88",
+        "evidence": "hemp_lab:assumption"
+      }
+    ],
+    "assemblies": [
+      {
+        "id": "hemp_lab:wall",
+        "name": "Hemp + timber wall",
+        "layers": [
+          {
+            "material": "core:timber",
+            "thickness_m": 0.03
+          },
+          {
+            "material": "hemp_lab:mix",
+            "thickness_m": 0.3
+          }
+        ],
+        "labor_cents_m2": 7500,
+        "evidence": "hemp_lab:assumption"
+      }
+    ]
+  }
+}
