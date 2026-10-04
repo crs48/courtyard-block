@@ -1,0 +1,22 @@
+---
+import Docs from '../../layouts/Docs.astro';
+import Diagrams from '../../components/Diagrams.astro';
+import { docs, renderDoc, type Doc } from '../../lib/docs';
+import { source, url } from '../../lib/site';
+export function getStaticPaths() {return docs.map((doc) => ({params: {slug: doc.slug}, props: {doc}}));}
+const {doc} = Astro.props as {doc: Doc};
+const rendered = await renderDoc(doc);
+const headings = rendered.metadata.headings.filter((heading) => heading.depth === 2);
+const next = docs[docs.findIndex((item) => item.slug === doc.slug) + 1];
+---
+<Docs title={doc.title} description={doc.description} slug={doc.slug}>
+  <article data-pagefind-body>
+    <p class="eyebrow mb-5" data-pagefind-ignore>{doc.group}</p>
+    <h1 class="font-display text-4xl leading-[1.1] tracking-tight sm:text-5xl" data-pagefind-meta="title">{doc.title}</h1>
+    <p class="mt-5 text-lg leading-relaxed text-muted">{doc.description}</p>
+    {headings.length > 2 && <details class="my-8 rounded-xl border border-line bg-white/35 p-5" data-pagefind-ignore><summary class="text-sm font-semibold">On this page</summary><ul class="mt-4 grid gap-3 text-sm text-muted sm:grid-cols-2">{headings.map((heading) => <li><a class="hover:text-forest" href={`#${heading.slug}`}>{heading.text}</a></li>)}</ul></details>}
+    <div class="prose mt-8" set:html={rendered.code} />
+  </article>
+  <div class="mt-14 flex flex-wrap items-center justify-between gap-5 border-t border-line pt-7 text-sm"><a href={source(doc.file)} class="text-muted hover:text-forest">Edit this page on GitHub ↗</a>{next && <a class="font-semibold" href={url(`docs/${next.slug}/`)}>Next: {next.title} →</a>}</div>
+  <Diagrams />
+</Docs>

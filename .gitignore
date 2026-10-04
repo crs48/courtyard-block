@@ -7,3 +7,9 @@ artifacts/
 *.log
 output/
 .playwright-cli/
+website/node_modules/
+website/.astro/
+website/dist/
+website/public/game/
+website/public/downloads/
+website/public/pagefind/

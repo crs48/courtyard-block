@@ -1,0 +1,90 @@
+name: Test and publish Courtyard Block
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Cache pinned Godot and Web templates
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/courtyard-godot
+            ~/.local/share/godot/export_templates
+          key: godot-web-${{ runner.os }}-${{ env.GODOT_VERSION }}-v1
+      - name: Install official Godot release
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          download_dir="$(mktemp -d)"
+          cd "$download_dir"
+          release_url="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          binary="Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          templates="Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          curl -fL --retry 3 -O "$release_url/$binary"
+          curl -fL --retry 3 -O "$release_url/$templates"
+          curl -fL --retry 3 -O "$release_url/SHA512-SUMS.txt"
+          awk -v binary="$binary" -v templates="$templates" '$2 == binary || $2 == templates' SHA512-SUMS.txt > selected-sums.txt
+          test "$(wc -l < selected-sums.txt)" -eq 2
+          sha512sum --check selected-sums.txt
+          mkdir -p "$HOME/.local/share/courtyard-godot" "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          unzip -q "$binary" -d "$HOME/.local/share/courtyard-godot"
+          mv "$HOME/.local/share/courtyard-godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" "$HOME/.local/share/courtyard-godot/godot"
+          chmod +x "$HOME/.local/share/courtyard-godot/godot"
+          unzip -j -q "$templates" 'templates/web_nothreads_release.zip' 'templates/web_nothreads_debug.zip' 'templates/version.txt' -d "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          rm -rf "$download_dir"
+      - name: Add Godot to PATH
+        run: echo "$HOME/.local/share/courtyard-godot" >> "$GITHUB_PATH"
+      - name: Verify simulation and playable scenes
+        run: python3 scripts/check.py
+      - name: Export browser game and engine notices
+        run: python3 scripts/build_web.py
+      - name: Install website dependencies
+        run: npm ci --prefix website
+      - name: Check website types
+        run: npm run check --prefix website
+      - name: Build website, search and verify internal links
+        run: npm run build --prefix website
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: website/dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

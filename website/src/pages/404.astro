@@ -1,0 +1,5 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/site';
+---
+<Base title="Page not found"><main id="main" class="wrap py-24"><p class="eyebrow mb-5">404 · An unexplored corner</p><h1 class="font-display text-5xl tracking-tight">This place isn't here yet.</h1><p class="mt-6 text-muted">The page may have moved. Head back to the courtyard or browse the field guide.</p><div class="mt-9 flex flex-wrap gap-3"><a class="button button-primary" href={url()}>Back to the courtyard</a><a class="button button-secondary" href={url('docs/')}>Browse the docs</a></div></main></Base>

@@ -1,0 +1,57 @@
+---
+import { url } from '../lib/site';
+---
+<section data-search data-bundle={url('pagefind/pagefind.js')} data-base={url()} class="relative" aria-label="Search documentation">
+  <label for="docs-search" class="eyebrow mb-2 block">Find an answer</label>
+  <input id="docs-search" type="search" placeholder="Search the docs…" autocomplete="off" aria-controls="search-results" class="min-h-12 w-full rounded-xl border border-line bg-white/70 px-4 text-sm" />
+  <p data-search-status role="status" class="mt-2 text-xs text-muted"></p>
+  <ol id="search-results" class="mt-3 space-y-2"></ol>
+  <noscript><p class="mt-3 text-xs text-muted">Search needs JavaScript. All guides are available below.</p></noscript>
+</section>
+<script>
+  type Result = { url: string; meta: {title?: string}; plain_excerpt: string };
+  type SearchAPI = { options: (settings: {baseUrl: string}) => Promise<void>; search: (query: string) => Promise<{results: {data: () => Promise<Result>}[]}> };
+  const container = document.querySelector<HTMLElement>('[data-search]')!;
+  const input = container.querySelector<HTMLInputElement>('input')!;
+  const status = container.querySelector<HTMLElement>('[data-search-status]')!;
+  const list = container.querySelector<HTMLOListElement>('ol')!;
+  let api: Promise<SearchAPI> | undefined;
+  let sequence = 0;
+  let timer: ReturnType<typeof setTimeout>;
+  input.addEventListener('input', () => {
+    const current = ++sequence;
+    clearTimeout(timer);
+    list.replaceChildren();
+    const query = input.value.trim();
+    status.textContent = query.length < 2 ? '' : 'Searching…';
+    if (query.length < 2) return;
+    timer = setTimeout(async () => {
+      try {
+        api ??= import(/* @vite-ignore */ container.dataset.bundle!).then(async (module: SearchAPI) => {
+          await module.options({baseUrl: container.dataset.base!});
+          return module;
+        });
+        const found = await (await api).search(query);
+        const results = await Promise.all(found.results.slice(0, 6).map((result) => result.data()));
+        if (current !== sequence) return;
+        status.textContent = found.results.length ? `${found.results.length} matching guides${found.results.length > 6 ? ' · showing 6' : ''}` : 'No matches. Try “water”, “wall” or “weather”.';
+        list.replaceChildren(...results.map((result) => {
+          const item = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = result.url;
+          link.className = 'block rounded-lg border border-line bg-white p-3 text-sm hover:bg-leaf/30';
+          const title = document.createElement('span');
+          title.className = 'block font-semibold';
+          title.textContent = result.meta.title || 'Read guide';
+          const excerpt = document.createElement('span');
+          excerpt.className = 'mt-1 block text-xs leading-relaxed text-muted';
+          excerpt.textContent = new DOMParser().parseFromString(result.plain_excerpt, 'text/html').body.textContent;
+          link.append(title, excerpt); item.append(link); return item;
+        }));
+      } catch {
+        api = undefined;
+        if (current === sequence) status.textContent = 'Search could not load. Browse the guides below, or try again.';
+      }
+    }, 200);
+  });
+</script>

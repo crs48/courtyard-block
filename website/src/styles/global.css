@@ -1,0 +1,49 @@
+@import '@fontsource-variable/dm-sans';
+@import '@fontsource-variable/fraunces';
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --font-sans: 'DM Sans Variable', sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --color-paper: #f6f4eb;
+  --color-ink: #243c31;
+  --color-muted: #637466;
+  --color-forest: #28583f;
+  --color-leaf: #d9e5c7;
+  --color-line: #d9ded0;
+  --color-clay: #a95c3a;
+}
+@layer base {
+  html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+  body { @apply bg-paper text-ink font-sans antialiased; }
+  ::selection { background: #cddfbb; color: #183524; }
+  button, a, input, summary { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 3px solid #a95c3a; outline-offset: 5px; }
+  button, summary { cursor: pointer; }
+}
+@layer components {
+  .wrap { @apply mx-auto w-full max-w-[1400px] px-6 sm:px-10 lg:px-16; }
+  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.17em] text-muted; }
+  .pill { @apply inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs font-medium; }
+  .button { @apply inline-flex min-h-12 items-center justify-center gap-3 rounded-full px-6 py-3 text-sm font-semibold transition-colors; }
+  .button-primary { @apply bg-forest text-white hover:bg-ink; }
+  .button-secondary { @apply border border-line hover:bg-white; }
+  .prose { --tw-prose-body: #43574b; --tw-prose-headings: #243c31; --tw-prose-links: #28583f; --tw-prose-bold: #243c31; --tw-prose-code: #28583f; max-width: none; }
+  .prose h2 { @apply mt-14 font-display text-3xl font-medium tracking-tight; }
+  .prose h3 { @apply mt-9 text-xl font-semibold; }
+  .prose a { text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .prose pre { @apply rounded-xl border border-line bg-white! text-[13px] leading-relaxed; }
+  .prose :not(pre) > code { @apply rounded bg-leaf/40 px-1 py-0.5 text-[0.88em]; overflow-wrap: anywhere; }
+  .prose table { display: block; overflow-x: auto; width: 100%; font-size: 0.85rem; }
+  .prose th { @apply bg-leaf/30; }
+  .prose td, .prose th { padding: 12px; min-width: 130px; }
+  .prose blockquote { @apply border-forest bg-leaf/20 py-1 not-italic; }
+  .prose input[type=checkbox] { margin-right: 0.4rem; accent-color: #28583f; }
+  .diagram { @apply my-8 overflow-x-auto rounded-xl border border-line bg-white p-5; }
+  .diagram svg { max-width: none; min-width: 420px; width: 100%; height: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

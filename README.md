@@ -2,9 +2,15 @@
 
 A small place. A shared life.
 
-A playable Godot foundation for experimenting with community life: shape a courtyard, furnish homes, meet residents, run a co-op, and compare alternative ways of living. Built with Godot **4.7.2**, typed GDScript and Compatibility rendering. No npm dependency or browser DOM game layer.
+**[Play in your browser](https://crs48.github.io/courtyard-block/play/)** · **[Website](https://crs48.github.io/courtyard-block/)** · **[Documentation](https://crs48.github.io/courtyard-block/docs/)**
+
+A playable Godot foundation for experimenting with community life: shape a courtyard, furnish homes, meet residents, run a co-op, and compare alternative ways of living. Built with Godot **4.7.2**, typed GDScript and Compatibility rendering. The website and documentation use **Astro and Tailwind CSS**, with GitHub Pages publishing the site and browser game together.
+
+The original code and content are **MIT licensed**, copyright **2026 Christopher Smothers**. See [LICENSE](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md) and [contributing](CONTRIBUTING.md).
 
 ## Play
+
+Start with [your first experiment](docs/getting-started.md), or the [full community lab guide](docs/lab.md). To build the public website locally or understand its deployment, read [website and publishing](docs/publishing.md).
 
 Open `project.godot` in Godot and press **F5**, or run:
 

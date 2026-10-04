@@ -1,0 +1,10 @@
+---
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import Base from '../layouts/Base.astro';
+import { url, source } from '../lib/site';
+const license = await fs.readFile(path.resolve(process.cwd(), '../LICENSE'), 'utf8');
+---
+<Base title="License & credits" description="Courtyard Block is MIT licensed, copyright Christopher Smothers. License and attribution details for the game and website.">
+  <main id="main" class="wrap max-w-5xl! py-16"><p class="eyebrow mb-5">Made to be shared</p><h1 class="font-display text-5xl tracking-tight">License & credits</h1><p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted">Use it, change it, build on it. Courtyard Block's original code, documentation and procedural art are available under the MIT license.</p><pre class="mt-10 whitespace-pre-wrap rounded-2xl border border-line bg-white/60 p-6 font-sans text-sm leading-relaxed sm:p-9">{license}</pre><div class="prose mt-10"><h2>Built with open tools</h2><p>The game uses Godot Engine. The website uses Astro, Tailwind CSS, Mermaid and Pagefind. DM Sans and Fraunces are provided through Fontsource under the SIL Open Font License. Each component retains its own copyright and license.</p><ul><li><a href={url('game/THIRD_PARTY_LICENSES.txt')}>Godot and bundled engine dependency notices</a></li><li><a href={url('downloads/WEBSITE_NOTICES.txt')}>Website and font copyright and license texts</a></li><li><a href={source('THIRD_PARTY_NOTICES.md')}>Repository attribution notes</a></li></ul><p>Data imported by mod authors may carry separate terms. Evidence records preserve those licenses; the project's MIT license does not replace them.</p></div></main>
+</Base>

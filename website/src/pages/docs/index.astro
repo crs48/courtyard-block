@@ -1,0 +1,13 @@
+---
+import Docs from '../../layouts/Docs.astro';
+import { docs } from '../../lib/docs';
+import { url } from '../../lib/site';
+---
+<Docs title="A field guide for curious builders" description="Learn to play, create your first mod, and understand what the community simulation can tell you.">
+  <p class="eyebrow mb-5">The Courtyard Block field guide</p>
+  <h1 class="max-w-3xl font-display text-5xl leading-[1.08] tracking-tight sm:text-6xl">A little guidance.<br />A lot to discover.</h1>
+  <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted">Start with a warmer home. End up asking better questions about how we live together.</p>
+  <a href={url('docs/getting-started/')} class="mt-9 flex items-center justify-between gap-5 rounded-2xl border border-forest/20 bg-leaf/40 p-7 hover:bg-leaf/70"><div><span class="eyebrow">New around here?</span><h2 class="mt-2 font-display text-3xl tracking-tight">Your first experiment</h2><p class="mt-3 text-sm text-muted">One change. One winter. See who benefits, and what it costs.</p></div><span class="text-2xl" aria-hidden="true">→</span></a>
+  <div class="mt-10 grid gap-5 sm:grid-cols-2">{docs.filter((doc) => ['community-lab', 'data-reference', 'moddability', 'contributing'].includes(doc.slug)).map((doc) => <a href={url(`docs/${doc.slug}/`)} class="rounded-xl border border-line bg-white/40 p-6 transition-colors hover:bg-white"><p class="eyebrow">{doc.group}</p><h2 class="mt-3 font-display text-2xl">{doc.title} <span aria-hidden="true">↗</span></h2><p class="mt-3 text-sm leading-relaxed text-muted">{doc.description}</p></a>)}</div>
+  <div class="mt-10 rounded-xl border border-line p-6"><h2 class="text-sm font-semibold">Take an example apart</h2><p class="mt-2 text-sm leading-relaxed text-muted">Download the example data pack, inspect its manifest and adapt it in Workshop. The reference schema describes supported fields and units.</p><div class="mt-5 flex flex-wrap gap-3"><a class="button button-secondary bg-white/50" href={url('downloads/hemp_lab-1.0.0.cbmod.zip')} download>Example mod ↓</a><a class="button button-secondary" href={url('downloads/lab-pack.schema.json')} download>JSON schema ↓</a></div></div>
+</Docs>

@@ -1,0 +1,27 @@
+---
+import Base from './Base.astro';
+import Search from '../components/Search.astro';
+import { docs } from '../lib/docs';
+import { url } from '../lib/site';
+interface Props {title: string; description: string; slug?: string}
+const {title, description, slug = ''} = Astro.props;
+const groups = [...new Set(docs.map((doc) => doc.group))];
+---
+<Base title={title} description={description} page="docs">
+  <div class="wrap grid items-start gap-10 py-10 lg:grid-cols-[235px_minmax(0,1fr)] lg:gap-14 lg:py-14 xl:gap-20">
+    <aside class="lg:sticky lg:top-28 lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:pr-3">
+      <Search />
+      <details class="mt-5 rounded-xl border border-line px-4 py-3 lg:contents" open>
+        <summary class="text-sm font-semibold lg:hidden">Browse guides</summary>
+        <nav class="mt-5 space-y-6" aria-label="Documentation">
+          {groups.map((group) => <div><p class="eyebrow mb-2">{group}</p><ul class="space-y-1">{docs.filter((doc) => doc.group === group).map((doc) => <li><a href={url(`docs/${doc.slug}/`)} aria-current={doc.slug === slug ? 'page' : undefined} class:list={['block rounded-lg px-3 py-2 text-sm', doc.slug === slug ? 'bg-leaf/70 font-semibold text-forest' : 'text-muted hover:bg-leaf/30 hover:text-forest']}>{doc.title}</a></li>)}</ul></div>)}
+        </nav>
+      </details>
+    </aside>
+    <main id="main" class="min-w-0"><slot /></main>
+  </div>
+</Base>
+<script>
+  const navigation = document.querySelector('aside details');
+  if (navigation && window.matchMedia('(max-width: 1023px)').matches) navigation.removeAttribute('open');
+</script>

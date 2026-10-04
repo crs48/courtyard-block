@@ -1,0 +1,41 @@
+---
+import '../styles/global.css';
+import { repository, url } from '../lib/site';
+interface Props { title?: string; description?: string; page?: string; }
+const { title = 'A small place. A shared life.', description = 'An open-source community simulation. Build a small place, experiment with shared systems, and make it your own.', page = '' } = Astro.props;
+const canonical = new URL(Astro.url.pathname === url('404/') ? url('404.html') : Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f4eb" /><meta name="description" content={description} />
+    <title>{title} — Courtyard Block</title><link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
+    <meta property="og:title" content={`${title} — Courtyard Block`} /><meta property="og:description" content={description} />
+    <meta property="og:type" content="website" /><meta property="og:url" content={canonical} />
+  </head>
+  <body>
+    <a href="#main" class="sr-only z-50 rounded bg-white p-4 focus:not-sr-only focus:absolute">Skip to content</a>
+    <header class="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur-md">
+      <div class="wrap flex h-20 items-center justify-between gap-4">
+        <a class="flex items-center gap-3 text-base font-semibold tracking-tight" href={url()} aria-label="Courtyard Block home">
+          <svg width="31" height="31" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M3 3h26v26H3V3Zm8 8v10h10V11H11Z" fill="currentColor" fill-rule="evenodd"/><path d="M14 23h4v9h-4z" fill="#f6f4eb"/></svg>
+          <span>Courtyard<span class="hidden sm:inline"> Block</span></span>
+        </a>
+        <nav class="flex items-center gap-5 text-sm sm:gap-8" aria-label="Main navigation">
+          <a href={url('docs/')} class:list={['hover:text-clay', {'font-bold': page === 'docs'}]}>Docs</a>
+          <a href={repository} class="hidden hover:text-clay sm:block">GitHub ↗</a>
+          <a href={url('play/')} class="button button-primary min-h-10! px-4! py-2!">Play the lab <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </header>
+    <slot />
+    <footer class="mt-20 border-t border-line py-10">
+      <div class="wrap flex flex-col justify-between gap-6 text-sm sm:flex-row">
+        <div><a class="font-semibold" href={url()}>Courtyard Block</a><p class="mt-2 text-xs text-muted">© 2026 Christopher Smothers · Built for curious people.</p></div>
+        <nav class="flex flex-wrap items-start gap-6 text-muted" aria-label="Footer navigation"><a class="hover:text-forest" href={url('docs/contributing/')}>Contribute</a><a class="hover:text-forest" href={repository}>Source code ↗</a><a class="hover:text-forest" href={url('license/')}>MIT license & credits</a></nav>
+      </div>
+    </footer>
+  </body>
+</html>
