@@ -244,7 +244,7 @@ func step() -> void:
 	state.grid_available = not w.outage
 	if w.outage and (hour == 0 or not weather(hour - 1).outage): _event("outage", "The grid went down", "Stored electricity and local generation now cover essential loads before heating and cooling.")
 	if not w.outage and hour > 0 and weather(hour - 1).outage: _event("recovery", "Grid supply restored", "Check each household's cold hours and the wastewater backlog.")
-	if day == int(climate.cold_snap_day) and h == 0: _event("weather", "A cold spell begins", "Five cold days test insulation, heat capacity and the shared plant.")
+	if not climate.has("hourly") and climate.cold_snap_drop_c > 0 and day == int(climate.cold_snap_day) and h == 0: _event("weather", "A cold spell begins", "Five cold days test insulation, heat capacity and the shared plant.")
 	_maintenance()
 	var n := zones.size()
 	var zero: Array = []

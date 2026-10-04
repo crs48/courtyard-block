@@ -166,4 +166,6 @@ func _io(test: SceneTree, packs: Array) -> void:
 	var weather := CBLabIO.weather_pack(csv, "weather_test")
 	test.check(weather.ok and e.install(weather.get("pack", {})).ok, "Full hourly CSV becomes a portable evidence-bearing weather pack")
 	test.check(e.edit("climate", "weather_test:year").ok and e.sim.weather(7).temperature_c == 10, "Imported weather drives both models without synthetic temperature substitution")
+	for hour in 744: e.sim.step()
+	test.check(not e.sim.state.events.any(func(event: Dictionary) -> bool: return event.kind == "weather"), "Imported weather does not announce a synthetic cold spell that was never applied")
 	test.check(not CBLabIO.weather_pack(csv.replace("0,10,100,0\n", "0,nan,100,0\n"), "invalid").ok, "Weather importer rejects nonfinite values")
