@@ -95,6 +95,7 @@ func _initialize() -> void:
 	check(equal_state(before_effects, baseline.state), "Invalid effect batch is atomic")
 	load("res://tests/evening.gd").new().run(self, catalog)
 	load("res://tests/lab.gd").new().run(self)
+	load("res://tests/living.gd").new().run(self)
 	_finish()
 
 func _test_packs() -> void:
