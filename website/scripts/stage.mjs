@@ -17,6 +17,8 @@ await fs.copyFile(path.join(root, 'LICENSE'), path.join(destination, 'game/LICEN
 const downloads = path.join(destination, 'downloads');
 await fs.mkdir(downloads, {recursive: true});
 await fs.copyFile(path.join(root, 'schemas/lab-pack.schema.json'), path.join(downloads, 'lab-pack.schema.json'));
+await fs.copyFile(path.join(root, 'schemas/living-kit.schema.json'), path.join(downloads, 'living-kit.schema.json'));
+await fs.copyFile(path.join(root, 'content/living/kit.json'), path.join(downloads, 'living-kit.json'));
 await fs.copyFile(path.join(root, 'mods/lab_hemp/manifest.json'), path.join(downloads, 'hemp-manifest.json'));
 execFileSync('python3', [path.join(root, 'scripts/package_mod.py'), path.join(root, 'mods/lab_hemp'), '--output', downloads], {stdio: 'inherit'});
 

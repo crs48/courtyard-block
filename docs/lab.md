@@ -1,6 +1,6 @@
 # Warm homes, shared systems
 
-The default game is now a small, moddable **one-year community experiment**. Eight households share heating, electricity, water, sewage and waste services. Change a design, follow a household, compare the same year, then make a reusable mod.
+The original annual lab is a small, moddable **one-year community experiment**, available from Living Worlds → Workshop or `godot --path . -- --lab`. Eight households share heating, electricity, water, sewage and waste services. Change a design, follow a household, compare the same year, then make a reusable mod.
 
 This implements the first proving ground from the [moddability exploration](explorations/0001_[_]_MODDABLE_COMMUNITY_EXPERIMENTS_GROUNDED_IN_PHYSICS_AND_EVIDENCE.md). The broad architecture in that document is a direction, not a list of completed capabilities. The annual lab and the earlier evening game currently have separate model paths.
 

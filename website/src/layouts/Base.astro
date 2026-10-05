@@ -26,7 +26,7 @@ const canonical = new URL(Astro.url.pathname === url('404/') ? url('404.html') :
         <nav class="flex items-center gap-5 text-sm sm:gap-8" aria-label="Main navigation">
           <a href={url('docs/')} class:list={['hover:text-clay', {'font-bold': page === 'docs'}]}>Docs</a>
           <a href={repository} class="hidden hover:text-clay sm:block">GitHub ↗</a>
-          <a href={url('play/')} class="button button-primary min-h-10! px-4! py-2!">Play the lab <span aria-hidden="true">↗</span></a>
+          <a href={url('play/')} class="button button-primary min-h-10! px-4! py-2!">Play a world <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
     </header>

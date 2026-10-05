@@ -18,7 +18,9 @@ Open `project.godot` in Godot and press **F5**, or run:
 godot --path .
 ```
 
-The default game is **Warm homes, shared systems**: a moddable annual community lab with eight households. **Design** a courtyard, detached cluster or elevated settlement; change wall assemblies and shared systems; **Run 90 days** or **Run 1 year**; then inspect household comfort, resource shortages, costs and arrears. Both alternatives use the same weather and households. **Workshop** creates portable material/wall mods, imports hourly weather and packages entire experiments for friends. Start with the [community lab guide](docs/lab.md).
+The default game is **One seed. Three futures.** Generate a community, lock and reroll its starting layers, then build alongside its residents. Preview room additions, move homes, replace walls and improve shared utilities. **Guide**, **Collaborate** and **Let it grow** share identical starting conditions and weather, with different delegated construction budgets. Read residents' proposals, protect cherished homes, advance a week and compare the results. Share a complete world or remix the data-only rules in Workshop. Start with the [living-world guide](docs/living-worlds.md).
+
+The original **Warm homes, shared systems** annual lab is available from Workshop or `godot --path . -- --lab`. Its original runtime and saves remain separate. It supports fixed-design comparisons, a material workshop and imported hourly weather; see the [annual lab guide](docs/lab.md).
 
 The earlier **An evening back** scenario remains available from the lab's Workshop, or directly:
 

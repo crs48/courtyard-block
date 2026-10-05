@@ -4,7 +4,7 @@ import { url } from '../lib/site';
 ---
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /><meta name="description" content="Play the Courtyard Block community lab. Build, run a year, compare and remix." /><title>Play — Courtyard Block</title><link rel="icon" href={url('favicon.svg')} /></head>
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /><meta name="description" content="Play Courtyard Block living worlds. Generate a community, build with its residents, and compare three futures." /><title>Play — Courtyard Block</title><link rel="icon" href={url('favicon.svg')} /></head>
 <body class="flex h-dvh flex-col overflow-hidden">
   <header class="flex min-h-12 items-center justify-between gap-3 border-b border-line px-4 text-xs sm:px-6"><a href={url()} class="font-semibold">← Courtyard Block</a><nav class="flex items-center gap-5" aria-label="Game navigation"><a href={url('docs/getting-started/')} target="_blank" rel="noopener">How to play ↗</a><button id="fullscreen" class="min-h-11 font-semibold">Fullscreen</button></nav></header>
   <main class="min-h-0 flex-1"><iframe id="game" title="Courtyard Block community simulation" src={url('game/')} allow="fullscreen; autoplay" allowfullscreen class="h-full w-full border-0"></iframe></main>

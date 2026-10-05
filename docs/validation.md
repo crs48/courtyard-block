@@ -1,8 +1,32 @@
 # Builds and validation
 
+## Living worlds — October 5, 2026
+
+The default entry point now generates a community and three matched futures: Guide, Collaborate and Let it grow. The original annual model remains accessible with `--lab`; existing saves and replay formats remain separate. See [living worlds](living-worlds.md) for the new model boundary and portable contract.
+
+Verified locally: **887 simulation checks + 14 evening scene checks + 56 annual scene checks + 50 living-world scene checks = 1,007 checks, all passing**.
+
+- Simulation checks cover repeated seeds, 40 buildable starting worlds, independent locked layers, exact starting conditions, collision rejection, pure previews, paid work queues, live-state preservation, construction energy accounting, autonomous growth, protection, modded priorities, full-year monetary and utility balances, bounded histories, and recorded-decision replay.
+- The living-world scene suite exercises preview/cancel/confirm, pause, matched progression, render rebinding, staged import success and failure, and all panels at 390×844, 844×390 and 1440×900. Earlier lab and evening scene suites still pass.
+- Native desktop and portrait renders were inspected. Browser WebGL loaded the new default, ran one week, switched futures, rendered resident additions, and exercised the 390×844 Scene toggle. No browser warnings or errors were observed in that session.
+- Browser ZIP export was downloaded, replayed through the native headless runner, repackaged and reimported through the browser file chooser. At hour 168, Guide / Collaborate / Let it grow showed 0 / 1 / 3 completed projects, 720 / 720 / 870 cold person-hours and €800.60 / €808.61 / €815.61 operating costs. The browser restored the same displayed outcomes and its pending project.
+
+Three six-home futures over 30 days took approximately **0.80 seconds** in one headless run on this Apple M1 Max, excluding startup. This is a local observation, not a low-end-device benchmark. Simulation work is bounded between rendered frames; world generation and individual daily planning steps are atomic.
+
+The website uses actual in-engine screenshots of the three futures after 30 days. Run `scripts/capture_living.gd` with `--living-test` to regenerate them. The new guide is included in the Astro site, search index and local-link validation.
+
+Physical phones, sustained thermal/power measurements, novice usability testing and empirical calibration remain unverified. The release provides a bounded recipe planner, ground-level room geometry and a one-year fixed cohort. It does not implement unbounded worlds, general autonomous invention, a local material supply chain, natural-disaster mechanics or generational simulation.
+
+```sh
+python3 scripts/check.py
+godot --path . --script tests/living_playable.gd -- --living-test
+godot --headless --path . --script scripts/run_living.gd -- --seed=2406 --hours=720 --output=/tmp/futures.json
+# Browser QA without autosaving: http://localhost:8060/?living-test
+```
+
 ## Annual community lab — October 4, 2026
 
-The default entry point is **Warm homes, shared systems**. The earlier evening game is available with `--evening`, and the foundation with `--foundation`; their save files and model paths are preserved. See the [lab guide](lab.md) for the data contract and numerical boundaries.
+At this milestone the default entry point was **Warm homes, shared systems**; it is now available with `--lab`. The earlier evening game is available with `--evening`, and the foundation with `--foundation`; their save files and model paths are preserved. See the [lab guide](lab.md) for the data contract and numerical boundaries.
 
 | Check | Observed result |
 | --- | --- |

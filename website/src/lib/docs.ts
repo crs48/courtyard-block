@@ -5,7 +5,8 @@ import { source, url } from './site';
 
 export const docs = [
   {slug: 'getting-started', file: 'docs/getting-started.md', title: 'Your first experiment', group: 'Start here', description: 'Build a small community, run a season, and learn from what changes.'},
-  {slug: 'community-lab', file: 'docs/lab.md', title: 'The community lab', group: 'Start here', description: 'The complete guide to homes, shared systems, experiments and portable mods.'},
+  {slug: 'living-worlds', file: 'docs/living-worlds.md', title: 'Living worlds & procedural futures', group: 'Start here', description: 'Seeded communities, resident construction, matched futures and editable rules.'},
+  {slug: 'community-lab', file: 'docs/lab.md', title: 'The annual community lab', group: 'Earlier experiments', description: 'The complete guide to homes, shared systems, experiments and portable mods.'},
   {slug: 'data-reference', file: 'docs/data-reference.md', title: 'Create a data mod', group: 'Make it yours', description: 'Materials, assemblies, weather and evidence. A practical introduction to the mod contract.'},
   {slug: 'contributing', file: 'CONTRIBUTING.md', title: 'Contribute', group: 'Make it yours', description: 'Help improve the simulation, design an experiment or contribute better evidence.'},
   {slug: 'validation', file: 'docs/validation.md', title: 'Builds & validation', group: 'Under the hood', description: 'Build instructions, verification results and platform limitations.'},
