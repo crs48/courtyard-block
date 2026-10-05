@@ -16,6 +16,12 @@ func run(test: SceneTree) -> void:
 	other_layers.people += 1
 	var changed: CBWorldExperiment = CBWorldExperiment.generate(other_layers).experiment
 	test.check(changed.sim.plans == e.sim.plans and changed.sim.climate == e.sim.climate and changed.design == e.design, "Rerolling residents preserves locked geometry, weather and resources")
+
+	var layout_layers := layers.duplicate()
+	layout_layers.layout += 71
+	var layout_change: CBWorldExperiment = CBWorldExperiment.generate(layout_layers).experiment
+	for field in ["water_l_day", "sewage_l_day", "solar_kw", "battery_kwh", "waste_kg", "grid_kw"]:
+		test.check(layout_change.design[field] == e.design[field], "Layout reroll preserves locked resource capacity: " + field)
 	var world := e.worlds[0]
 	var before := CBLabCatalog.canonical(world.model.state)
 	var rejected := world.request(CBLivingWorld.action("move", 0, [0, 0]))
