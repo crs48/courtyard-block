@@ -2,7 +2,7 @@
   "format": "courtyard-living-kit",
   "version": 1,
   "name": "Neighbours who build",
-  "notes": "Synthetic teaching assumptions. Construction prices include imported materials and labor; no local material supply chain. Preferences are individual inputs, not cultural predictions.",
+  "notes": "Synthetic teaching assumptions. Room cost per m\u00b2 covers floor, roof and labor; added wall area is priced from its assembly. All construction uses imported materials; no local supply chain. Preferences are individual inputs, not cultural predictions.",
   "room_cost_cents_m2": 85000,
   "demolition_cents_m2": 6000,
   "room_hours": 48,
@@ -10,14 +10,60 @@
   "cooldown_days": 14,
   "collaborate_limit_cents": 800000,
   "grow_limit_cents": 2000000,
-  "space_targets_m2_person": [18, 20, 22],
-  "weights": {"warmth": 1.0, "space": 1.0, "water": 1.0, "waste": 1.0, "power": 1.0},
+  "space_targets_m2_person": [
+    18,
+    20,
+    22
+  ],
+  "weights": {
+    "warmth": 1.0,
+    "space": 1.0,
+    "water": 1.0,
+    "waste": 1.0,
+    "power": 1.0
+  },
   "upgrades": [
-    {"id": "water", "name": "Improve water connection", "field": "water_l_day", "amount": 600, "cost_cents": 180000},
-    {"id": "sewer", "name": "Improve sewage removal", "field": "sewage_l_day", "amount": 600, "cost_cents": 220000},
-    {"id": "bins", "name": "Add shared waste bins", "field": "waste_kg", "amount": 30, "cost_cents": 70000},
-    {"id": "solar", "name": "Add 2 kW of solar", "field": "solar_kw", "amount": 2, "cost_cents": 140000},
-    {"id": "battery", "name": "Add 10 kWh of battery capacity", "field": "battery_kwh", "amount": 10, "cost_cents": 150000},
-    {"id": "tank", "name": "Add 1,000 L of water storage", "field": "tank_l", "amount": 1000, "cost_cents": 90000}
+    {
+      "id": "water",
+      "name": "Improve water connection",
+      "field": "water_l_day",
+      "amount": 600,
+      "cost_cents": 180000
+    },
+    {
+      "id": "sewer",
+      "name": "Improve sewage removal",
+      "field": "sewage_l_day",
+      "amount": 600,
+      "cost_cents": 220000
+    },
+    {
+      "id": "bins",
+      "name": "Add shared waste bins",
+      "field": "waste_kg",
+      "amount": 30,
+      "cost_cents": 70000
+    },
+    {
+      "id": "solar",
+      "name": "Add 2 kW of solar",
+      "field": "solar_kw",
+      "amount": 2,
+      "cost_cents": 140000
+    },
+    {
+      "id": "battery",
+      "name": "Add 10 kWh of battery capacity",
+      "field": "battery_kwh",
+      "amount": 10,
+      "cost_cents": 150000
+    },
+    {
+      "id": "tank",
+      "name": "Add 1,000 L of water storage",
+      "field": "tank_l",
+      "amount": 1000,
+      "cost_cents": 90000
+    }
   ]
 }

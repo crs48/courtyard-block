@@ -19,3 +19,5 @@ run(["--script", "tests/run.gd"])
 run(["--script", "tests/playable.gd", "--", "--evening-smoke"])
 
 run(["--script", "tests/lab_playable.gd", "--", "--lab-test"])
+
+run(["--script", "tests/living_playable.gd", "--", "--living-test"])

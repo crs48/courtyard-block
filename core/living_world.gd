@@ -118,8 +118,14 @@ func preview(command: Dictionary) -> Dictionary:
 			design[recipe.field] += float(recipe.amount)
 			cost = int(recipe.cost_cents)
 			title = recipe.name
+	if int(model.state.hour) + hours > CBLab.YEAR_HOURS: return CBLabCatalog.fail("This project would finish beyond the one-year experiment. Start a new world to try it.")
 	var built := CBLivingModel.build(model.catalog, design, plans)
-	if not built.ok: return built
+	if not built.ok:
+		built["plans"] = plans
+		return built
+	if command.kind == "add":
+		var new_zone: Dictionary = built.simulation.zones[index]
+		cost += roundi(maxf(0, new_zone.wall_area - model.zones[index].wall_area) * new_zone.wall.cost_cents_m2)
 	var available := int(model.state.shared_capital_cents if payer == "shared" else model.state.owners[payer])
 	if cost > available: return CBLabCatalog.fail("%s needs €%d; only €%d remains." % [payer, cost / 100, available / 100])
 	return {"ok": true, "message": title, "title": title, "cost": cost, "hours": hours, "payer": payer, "plans": plans, "design": design, "candidate": built.simulation}
@@ -153,12 +159,14 @@ func _finish() -> void:
 			var old_capacity: float = model.zones[i][pair[0]]
 			var new_capacity: float = next.zones[i][pair[0]]
 			var old_temperature: float = model.state.homes[i][pair[1]]
-			var added := maxf(0, new_capacity - old_capacity)
 			var retained := minf(old_capacity, new_capacity)
+			if pair[0] == "mass_c" and next.plans[i].assembly != model.plans[i].assembly:
+				retained = minf(next.zones[i].floor_m2, model.zones[i].floor_m2) * 16000.0
+			var added := new_capacity - retained
 			var incoming: float = model.state.weather.temperature_c
 			next.state.homes[i][pair[1]] = (retained * old_temperature + added * incoming) / new_capacity
-			energy_exchange_j += added * (incoming + 273.15) - maxf(0, old_capacity - new_capacity) * (old_temperature + 273.15)
-		var mass_change: float = next.zones[i].mass_kg - model.zones[i].mass_kg
+			energy_exchange_j += added * (incoming + 273.15) - (old_capacity - retained) * (old_temperature + 273.15)
+		var mass_change: float = next.zones[i].mass_kg - model.zones[i].mass_kg - 150.0 * (next.zones[i].floor_m2 - model.zones[i].floor_m2)
 		# Record a full wall replacement even when total mass stays similar.
 		if next.plans[i].assembly != model.plans[i].assembly:
 			imported_mass_kg += next.zones[i].wall_area * next.zones[i].wall.mass_kg_m2

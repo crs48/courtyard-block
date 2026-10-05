@@ -82,3 +82,31 @@ func run(test: SceneTree) -> void:
 		var bad := exported.duplicate(true)
 		mutation.call(bad)
 		test.check(not CBWorldExperiment.read_document(bad).ok, "Malformed living experiment is rejected")
+
+	# The complete horizon exercises service failures, arrears and bounded planning.
+	e.start(8760)
+	while e.phase == "running": e.tick()
+	for w in e.worlds:
+		var state: Dictionary = w.model.state
+		var totals: Dictionary = state.totals
+		var initial: CBWorldExperiment = CBWorldExperiment.generate(layers).experiment
+		var initial_capital := initial.worlds[0].model.capital
+		var expected_money: int = state.initial_money - initial_capital + totals.income_cents - totals.living_cents - totals.operating_cents - totals.owner_maintenance_cents - w.spent
+		test.check(w.model.money() == expected_money, "Live construction and all monetary boundaries reconcile over a year")
+		test.check(absf(totals.grid_kwh + totals.solar_kwh - totals.electricity_served_kwh - totals.battery_loss_kwh - totals.curtailed_kwh - state.battery_kwh) < 0.0001, "Electricity balances with autonomous capacity changes")
+		test.check(absf(2000 + totals.water_import_l + totals.rain_used_l - totals.water_used_l - state.water_l) < 0.0001, "Water balances against initial stock, not final tank capacity")
+		test.check(absf(totals.water_used_l * 0.8 - totals.sewage_removed_l - totals.sewage_overflow_l - state.sewage_l) < 0.0001, "Wastewater conserves volume during live upgrades")
+		test.check(w.journal.size() <= 200 and w.proposals.size() <= w.model.plans.size() + 1, "Long runs keep journals and proposal queues bounded")
+		test.check(state.hour == 8760, "Living worlds stop at the declared year boundary")
+	var frozen := e.export_document()
+	e.tick()
+	test.check(e.export_document() == frozen, "Completed year does not advance")
+	var passive_kit := CBLivingWorld.default_kit()
+	for key in passive_kit.weights: passive_kit.weights[key] = 0
+	var passive: CBWorldExperiment = CBWorldExperiment.generate(layers, passive_kit).experiment
+	passive.start(168)
+	while passive.phase == "running": passive.tick()
+	test.check(passive.worlds[2].completed == 0 and passive.worlds[2].proposals.is_empty(), "Modded priority weights alter behaviour without engine edits")
+	var unsupported := passive_kit.duplicate(true)
+	unsupported.upgrades[0].field = "happiness"
+	test.check(not CBLivingWorld.kit_error(unsupported).is_empty(), "Unsupported mechanics cannot masquerade as executable kit fields")

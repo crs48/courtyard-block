@@ -41,12 +41,14 @@ var last_portrait := false
 
 func _ready() -> void:
 	var legacy := false
+	var annual := false
 	for argument in OS.get_cmdline_user_args():
+		if argument in ["--lab", "--lab-test", "--lab-smoke"]: annual = true
 		if argument in ["--evening", "--foundation", "--smoke", "--evening-smoke", "--benchmark"]: legacy = true
-	if requested_mode == "lab" or (requested_mode.is_empty() and not legacy):
+	if requested_mode in ["lab", "living"] or (requested_mode.is_empty() and not legacy):
 		set_process(false)
 		set_process_unhandled_input(false)
-		lab_game = CBLabGame.new()
+		lab_game = CBLabGame.new() if requested_mode == "lab" or (requested_mode.is_empty() and annual) else CBLivingGame.new()
 		add_child(lab_game)
 		return
 	get_window().content_scale_size = Vector2i.ZERO

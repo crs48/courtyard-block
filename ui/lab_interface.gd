@@ -481,6 +481,7 @@ func _workshop() -> void:
 	_rule()
 	_label(body, "EXPERIMENT CONTENT", 11, GREEN)
 	for pack in e.catalog.packs: _text(pack.name + " · " + pack.version + "\n" + pack.id + " · " + CBLabCatalog.digest(pack).substr(0, 12))
+	_button(body, "Open living worlds", func() -> void: action.emit({"type": "legacy", "mode": "living"}))
 	_button(body, "Open the evening game", func() -> void: action.emit({"type": "legacy", "mode": "evening"}))
 	_button(body, "Open the original sandbox", func() -> void: action.emit({"type": "legacy", "mode": "foundation"}))
 

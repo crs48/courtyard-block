@@ -27,6 +27,7 @@ static func generate(layer_seeds: Dictionary, packs: Array) -> Dictionary:
 	for family in ["layouts", "climates", "homes", "plants", "policies", "assemblies"]:
 		var required: String = {"layouts": "core:courtyard", "climates": "core:continental", "homes": "core:home", "plants": "core:heat_pump", "policies": "core:metered", "assemblies": "core:light_wall"}[family]
 		if content.definition(family, required).is_empty(): return CBLabCatalog.fail("Living worlds require the reference kit.")
+	if content.definition("assemblies", "core:warm_wall").is_empty(): return CBLabCatalog.fail("The reference insulated wall is required by the resident planner.")
 	for pack in packs:
 		if pack.id == "seeded": return CBLabCatalog.fail("The seeded namespace is reserved for generation.")
 	var layout_seed := int(layer_seeds.layout)
@@ -43,8 +44,9 @@ static func generate(layer_seeds: Dictionary, packs: Array) -> Dictionary:
 		var z: int = (i / 2) * 10 - (count / 2 - 1) * 5
 		if kind == 0: z = (i / 2) * 8 - (count / 2 - 1) * 4
 		if kind == 2:
-			x += sample(layout_seed, "x%d" % i, 5) - 2
-			z += sample(layout_seed, "z%d" % i, 3) - 1
+			var angle := i * TAU / count
+			x = roundi(cos(angle) * (16 + gap)) + sample(layout_seed, "x%d" % i, 3) - 1
+			z = roundi(sin(angle) * (16 + gap)) + sample(layout_seed, "z%d" % i, 3) - 1
 		var id := "home_%02d" % (i + 1)
 		var owner: String = ["west", "east", "commons"][i % 3]
 		plans.append({"id": id, "x": x - 3, "z": z - 4, "rooms": [[0, 0, 6, 4], [0, 4, 4, 4], [4, 4, 2, 4]], "assembly": "core:light_wall", "owner": owner})
