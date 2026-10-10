@@ -8,6 +8,7 @@ import { url } from '../lib/site';
 <body class="flex h-dvh flex-col overflow-hidden">
   <header class="flex min-h-12 items-center justify-between gap-3 border-b border-line px-4 text-xs sm:px-6"><a href={url()} class="font-semibold">← Courtyard Block</a><nav class="flex items-center gap-5" aria-label="Game navigation"><a href={url('docs/getting-started/')} target="_blank" rel="noopener">How to play ↗</a><button id="fullscreen" class="min-h-11 font-semibold">Fullscreen</button></nav></header>
   <main class="min-h-0 flex-1"><iframe id="game" title="Courtyard Block community simulation" src={url('game/')} allow="fullscreen; autoplay" allowfullscreen class="h-full w-full border-0"></iframe></main>
+  <footer class="shrink-0 border-t border-line px-4 text-xs text-muted sm:px-6"><a href="https://crs.land/" class="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-forest">More games and experiments at crs.land ↗</a></footer>
   <script>
     const frame = document.querySelector<HTMLIFrameElement>('#game')!;
     document.querySelector<HTMLButtonElement>('#fullscreen')!.addEventListener('click', async () => {
